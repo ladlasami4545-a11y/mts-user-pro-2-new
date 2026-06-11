@@ -1,0 +1,2111 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="MTS SMM - Professional Social Media Marketing Services">
+<title>MTS SMM - Media Tech Support</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --bg-primary:#0a0a0f;--bg-secondary:#12121a;--bg-card:#1a1a2e;
+  --accent:#6c63ff;--accent2:#ff6584;--accent3:#43e97b;
+  --text-primary:#ffffff;--text-secondary:#a0a0b8;
+  --border:rgba(108,99,255,0.2);--glass:rgba(255,255,255,0.05);
+  --shadow:0 8px 32px rgba(0,0,0,0.4);
+  --gradient:linear-gradient(135deg,#6c63ff,#ff6584);
+  --success:#43e97b;--warning:#ffa500;--danger:#ff4757;--info:#00d2ff;
+  --radius:16px;--radius-sm:8px;
+  --transition:all 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+[data-theme="light"]{
+  --bg-primary:#f0f2f5;--bg-secondary:#ffffff;--bg-card:#ffffff;
+  --text-primary:#1a1a2e;--text-secondary:#6c757d;
+  --border:rgba(108,99,255,0.15);--glass:rgba(0,0,0,0.03);
+  --shadow:0 8px 32px rgba(0,0,0,0.1);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg-primary);color:var(--text-primary);min-height:100vh;overflow-x:hidden;}
+a{color:inherit;text-decoration:none;}
+button{cursor:pointer;font-family:inherit;}
+input,select,textarea{font-family:inherit;}
+.hidden{display:none!important;}
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-thumb{background:var(--accent);border-radius:3px;}
+
+/* Loading — covers entire UI while auth resolves */
+#loadingScreen{position:fixed;inset:0;background:var(--bg-primary);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity .5s;}
+#loadingScreen.fade-out{opacity:0;pointer-events:none;}
+.loader-logo{font-size:2.5rem;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px;}
+.loader-sub{color:var(--text-secondary);font-size:.9rem;margin-bottom:30px;}
+.loader-bar{width:200px;height:3px;background:var(--border);border-radius:2px;overflow:hidden;}
+.loader-bar-fill{height:100%;width:0%;background:var(--gradient);animation:loadFill 1.8s ease forwards;}
+@keyframes loadFill{to{width:100%;}}
+
+/* Sync indicator */
+#syncBadge{position:fixed;bottom:16px;left:16px;background:var(--bg-card);border:1px solid var(--border);border-radius:50px;padding:6px 14px;font-size:.75rem;color:var(--text-secondary);display:flex;align-items:center;gap:7px;z-index:500;opacity:0;transition:opacity .3s;pointer-events:none;}
+#syncBadge.show{opacity:1;}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--accent3);flex-shrink:0;}
+#syncBadge.syncing .sync-dot{background:var(--warning);animation:blink .8s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* Toast */
+#toastContainer{position:fixed;top:20px;right:20px;z-index:9998;display:flex;flex-direction:column;gap:10px;}
+.toast{padding:13px 18px;border-radius:var(--radius-sm);color:#fff;font-size:.88rem;font-weight:500;display:flex;align-items:center;gap:10px;min-width:270px;max-width:370px;box-shadow:var(--shadow);animation:slideIn .3s ease;border-left:4px solid transparent;}
+.toast.success{background:linear-gradient(135deg,#1a3a2a,#0f2018);border-left-color:var(--success);}
+.toast.error{background:linear-gradient(135deg,#3a1a1a,#200f0f);border-left-color:var(--danger);}
+.toast.warning{background:linear-gradient(135deg,#3a2a1a,#20180f);border-left-color:var(--warning);}
+.toast.info{background:linear-gradient(135deg,#1a2a3a,#0f1820);border-left-color:var(--info);}
+@keyframes slideIn{from{opacity:0;transform:translateX(100%);}to{opacity:1;transform:translateX(0);}}
+
+/* Currency */
+#currencyWrapper{position:relative;}
+#currencyToggle{display:flex;align-items:center;gap:5px;background:var(--glass);border:1px solid var(--border);border-radius:50px;padding:5px 12px;cursor:pointer;transition:var(--transition);font-size:.8rem;font-weight:700;color:var(--accent3);}
+#currencyToggle:hover{border-color:var(--accent);}
+.curr-dd{position:absolute;top:calc(100% + 6px);right:0;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);min-width:155px;box-shadow:var(--shadow);z-index:300;opacity:0;pointer-events:none;transform:translateY(-6px);transition:var(--transition);}
+.curr-dd.open{opacity:1;pointer-events:all;transform:translateY(0);}
+.curr-opt{padding:9px 13px;font-size:.85rem;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:var(--transition);}
+.curr-opt:hover{background:rgba(108,99,255,.1);color:var(--accent);}
+.curr-opt.active{color:var(--accent3);font-weight:600;}
+
+/* Navbar */
+#navbar{position:fixed;top:0;left:0;right:0;height:70px;background:rgba(10,10,15,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 20px;z-index:1000;}
+[data-theme="light"] #navbar{background:rgba(255,255,255,.95);}
+.nav-left{display:flex;align-items:center;gap:14px;}
+.hamburger{background:none;border:none;color:var(--text-primary);font-size:1.35rem;padding:8px;border-radius:var(--radius-sm);}
+.hamburger:hover{background:var(--glass);color:var(--accent);}
+.nav-logo{cursor:pointer;}
+.nav-logo-main{font-size:1.5rem;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1;display:block;}
+.nav-logo-sub{font-size:.62rem;color:var(--text-secondary);letter-spacing:1px;text-transform:uppercase;display:block;}
+.nav-center{display:flex;align-items:center;gap:4px;}
+@media(max-width:768px){.nav-center{display:none;}}
+.nav-link{padding:8px 15px;border-radius:var(--radius-sm);color:var(--text-secondary);font-size:.88rem;font-weight:500;border:none;background:none;transition:var(--transition);}
+.nav-link:hover,.nav-link.active{color:var(--accent);background:rgba(108,99,255,.1);}
+.nav-right{display:flex;align-items:center;gap:8px;}
+.theme-btn{background:none;border:none;color:var(--text-secondary);font-size:1.1rem;padding:8px;border-radius:var(--radius-sm);}
+.theme-btn:hover{color:var(--accent);}
+.btn-login{padding:7px 18px;border-radius:var(--radius-sm);border:2px solid var(--accent);color:var(--accent);background:transparent;font-size:.88rem;font-weight:600;transition:var(--transition);}
+.btn-login:hover{background:var(--accent);color:#fff;}
+.btn-signup{padding:7px 18px;border-radius:var(--radius-sm);border:none;background:var(--gradient);color:#fff;font-size:.88rem;font-weight:600;box-shadow:0 4px 15px rgba(108,99,255,.4);}
+.btn-signup:hover{transform:translateY(-1px);}
+#userProfile{position:relative;}
+.user-avatar-btn{display:flex;align-items:center;gap:9px;background:var(--glass);border:1px solid var(--border);border-radius:50px;padding:5px 13px 5px 7px;cursor:pointer;transition:var(--transition);}
+.user-avatar-btn:hover{background:rgba(108,99,255,.15);border-color:var(--accent);}
+.user-avatar{width:33px;height:33px;border-radius:50%;background:var(--gradient);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.88rem;color:#fff;overflow:hidden;flex-shrink:0;}
+.user-info-nav{display:flex;flex-direction:column;text-align:left;}
+.user-name-nav{font-size:.83rem;font-weight:600;color:var(--text-primary);line-height:1;}
+.user-wallet-nav{font-size:.7rem;color:var(--accent3);font-weight:600;}
+.user-dd{position:absolute;top:calc(100% + 8px);right:0;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:8px;min-width:195px;box-shadow:var(--shadow);opacity:0;pointer-events:none;transform:translateY(-8px);transition:var(--transition);z-index:200;}
+.user-dd.open{opacity:1;pointer-events:all;transform:translateY(0);}
+.dd-item{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:var(--radius-sm);color:var(--text-secondary);font-size:.88rem;transition:var(--transition);cursor:pointer;border:none;background:none;width:100%;text-align:left;}
+.dd-item:hover{background:rgba(108,99,255,.1);color:var(--accent);}
+.dd-item.danger{color:var(--danger);}
+.dd-item.danger:hover{background:rgba(255,71,87,.1);}
+.dd-divider{height:1px;background:var(--border);margin:5px 0;}
+
+/* Side Menu */
+#sideMenu{position:fixed;top:0;left:-300px;width:280px;height:100vh;background:var(--bg-card);border-right:1px solid var(--border);z-index:1001;transition:left .3s ease;display:flex;flex-direction:column;overflow-y:auto;}
+#sideMenu.open{left:0;}
+#sideOverlay{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(2px);z-index:1000;opacity:0;pointer-events:none;transition:opacity .3s;}
+#sideOverlay.open{opacity:1;pointer-events:all;}
+.side-header{padding:20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
+.side-logo-main{font-size:1.8rem;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.side-logo-sub{font-size:.68rem;color:var(--text-secondary);letter-spacing:2px;text-transform:uppercase;margin-top:2px;}
+.side-close{background:none;border:none;color:var(--text-secondary);font-size:1.25rem;padding:7px;border-radius:var(--radius-sm);}
+.side-close:hover{color:var(--danger);}
+.side-nav{padding:14px 10px;flex:1;}
+.side-nav-item{display:flex;align-items:center;gap:13px;padding:11px 15px;border-radius:var(--radius-sm);color:var(--text-secondary);font-size:.93rem;font-weight:500;transition:var(--transition);cursor:pointer;margin-bottom:3px;border:none;background:none;width:100%;text-align:left;}
+.side-nav-item:hover{background:rgba(108,99,255,.1);color:var(--accent);}
+.side-nav-item.active{background:rgba(108,99,255,.15);color:var(--accent);border-left:3px solid var(--accent);}
+.side-nav-item i{width:19px;text-align:center;}
+.side-divider{height:1px;background:var(--border);margin:10px 0;}
+.side-section-label{font-size:.7rem;color:var(--text-secondary);padding:0 15px;margin-bottom:5px;text-transform:uppercase;letter-spacing:1px;}
+.side-footer{padding:14px;border-top:1px solid var(--border);text-align:center;font-size:.78rem;color:var(--text-secondary);}
+
+/* Pages */
+#mainContent{margin-top:70px;min-height:calc(100vh - 70px);}
+.page{display:none;}
+.page.active{display:block;}
+
+/* Hero */
+#heroSection{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:80px 20px;overflow:hidden;}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%,rgba(108,99,255,.15) 0%,transparent 60%),radial-gradient(ellipse at 70% 50%,rgba(255,101,132,.1) 0%,transparent 60%);}
+.hero-particles{position:absolute;inset:0;overflow:hidden;}
+.particle{position:absolute;border-radius:50%;opacity:.15;animation:float linear infinite;}
+@keyframes float{0%{transform:translateY(100vh) rotate(0deg);opacity:0;}10%{opacity:.15;}90%{opacity:.15;}100%{transform:translateY(-100px) rotate(720deg);opacity:0;}}
+.hero-content{position:relative;z-index:1;max-width:800px;}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(108,99,255,.15);border:1px solid rgba(108,99,255,.3);border-radius:50px;padding:7px 18px;font-size:.83rem;color:var(--accent);margin-bottom:22px;}
+.pulse{width:8px;height:8px;border-radius:50%;background:var(--accent3);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.5);opacity:.5;}}
+.hero-title{font-size:clamp(2.1rem,6vw,3.8rem);font-weight:800;line-height:1.2;margin-bottom:18px;}
+.hero-title span{background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero-desc{font-size:1.05rem;color:var(--text-secondary);max-width:580px;margin:0 auto 38px;line-height:1.7;}
+.hero-buttons{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+.btn-hero-primary{padding:13px 34px;border-radius:50px;background:var(--gradient);color:#fff;border:none;font-size:.97rem;font-weight:700;box-shadow:0 8px 30px rgba(108,99,255,.5);transition:var(--transition);}
+.btn-hero-primary:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(108,99,255,.7);}
+.btn-hero-secondary{padding:13px 34px;border-radius:50px;background:transparent;color:var(--text-primary);border:2px solid var(--border);font-size:.97rem;font-weight:700;transition:var(--transition);}
+.btn-hero-secondary:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-3px);}
+.hero-stats{display:flex;gap:38px;justify-content:center;margin-top:56px;flex-wrap:wrap;}
+.stat-item{text-align:center;}
+.stat-num{font-size:2rem;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.stat-label{font-size:.83rem;color:var(--text-secondary);}
+
+/* Sections */
+.section{padding:76px 20px;}
+.section-inner{max-width:1200px;margin:0 auto;}
+.section-header{text-align:center;margin-bottom:56px;}
+.section-tag{display:inline-block;background:rgba(108,99,255,.15);border:1px solid rgba(108,99,255,.3);border-radius:50px;padding:5px 16px;font-size:.78rem;color:var(--accent);font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;}
+.section-title{font-size:clamp(1.7rem,4vw,2.7rem);font-weight:800;line-height:1.2;margin-bottom:12px;}
+.section-title span{background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.section-desc{font-size:.97rem;color:var(--text-secondary);max-width:580px;margin:0 auto;line-height:1.7;}
+
+/* Feature Cards */
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:22px;}
+.feature-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:30px;transition:var(--transition);position:relative;overflow:hidden;}
+.feature-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--gradient);opacity:0;transition:var(--transition);}
+.feature-card:hover{transform:translateY(-4px);border-color:var(--accent);box-shadow:0 18px 50px rgba(108,99,255,.2);}
+.feature-card:hover::before{opacity:1;}
+.feature-icon{width:58px;height:58px;border-radius:var(--radius);background:rgba(108,99,255,.15);border:1px solid rgba(108,99,255,.2);display:flex;align-items:center;justify-content:center;font-size:1.7rem;margin-bottom:18px;}
+.feature-title{font-size:1.05rem;font-weight:700;margin-bottom:9px;}
+.feature-desc{font-size:.88rem;color:var(--text-secondary);line-height:1.6;}
+
+/* Platform Cards — redesigned with brand icons */
+.platforms-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(115px,1fr));gap:14px;}
+.platform-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:22px 14px;text-align:center;transition:var(--transition);cursor:pointer;position:relative;overflow:hidden;}
+.platform-card::after{content:'';position:absolute;inset:0;opacity:0;transition:var(--transition);border-radius:var(--radius);}
+.platform-card:hover{transform:translateY(-4px);box-shadow:0 14px 36px rgba(0,0,0,.3);}
+.plat-icon-wrap{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:1.7rem;transition:var(--transition);}
+.platform-name{font-size:.78rem;font-weight:600;color:var(--text-secondary);transition:var(--transition);}
+.platform-desc{font-size:.68rem;color:var(--text-secondary);margin-top:3px;opacity:.7;}
+.platform-card:hover .platform-name{color:var(--text-primary);}
+
+/* Brand colors per platform */
+.plat-tiktok .plat-icon-wrap{background:rgba(0,0,0,.4);border:1px solid rgba(105,201,208,.3);}
+.plat-instagram .plat-icon-wrap{background:linear-gradient(135deg,rgba(64,93,230,.25),rgba(225,48,108,.25));}
+.plat-facebook .plat-icon-wrap{background:rgba(24,119,242,.2);border:1px solid rgba(24,119,242,.3);}
+.plat-youtube .plat-icon-wrap{background:rgba(255,0,0,.15);border:1px solid rgba(255,0,0,.25);}
+.plat-twitter .plat-icon-wrap{background:rgba(29,155,240,.15);border:1px solid rgba(29,155,240,.25);}
+.plat-pinterest .plat-icon-wrap{background:rgba(230,0,35,.15);border:1px solid rgba(230,0,35,.25);}
+.plat-telegram .plat-icon-wrap{background:rgba(0,136,204,.15);border:1px solid rgba(0,136,204,.25);}
+.plat-whatsapp .plat-icon-wrap{background:rgba(37,211,102,.15);border:1px solid rgba(37,211,102,.25);}
+.plat-snapchat .plat-icon-wrap{background:rgba(255,252,0,.15);border:1px solid rgba(255,252,0,.25);}
+.plat-linkedin .plat-icon-wrap{background:rgba(10,102,194,.15);border:1px solid rgba(10,102,194,.25);}
+.plat-discord .plat-icon-wrap{background:rgba(88,101,242,.15);border:1px solid rgba(88,101,242,.25);}
+.plat-spotify .plat-icon-wrap{background:rgba(30,215,96,.15);border:1px solid rgba(30,215,96,.25);}
+.plat-twitch .plat-icon-wrap{background:rgba(145,71,255,.15);border:1px solid rgba(145,71,255,.25);}
+.plat-threads .plat-icon-wrap{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);}
+.plat-default .plat-icon-wrap{background:rgba(108,99,255,.15);border:1px solid rgba(108,99,255,.25);}
+
+.platform-card:hover.plat-tiktok{border-color:rgba(105,201,208,.5);box-shadow:0 14px 36px rgba(105,201,208,.15);}
+.platform-card:hover.plat-instagram{border-color:rgba(225,48,108,.4);box-shadow:0 14px 36px rgba(225,48,108,.15);}
+.platform-card:hover.plat-facebook{border-color:rgba(24,119,242,.4);box-shadow:0 14px 36px rgba(24,119,242,.15);}
+.platform-card:hover.plat-youtube{border-color:rgba(255,0,0,.4);box-shadow:0 14px 36px rgba(255,0,0,.15);}
+.platform-card:hover.plat-twitter{border-color:rgba(29,155,240,.4);}
+.platform-card:hover.plat-telegram{border-color:rgba(0,136,204,.4);}
+.platform-card:hover.plat-whatsapp{border-color:rgba(37,211,102,.4);}
+.platform-card:hover.plat-discord{border-color:rgba(88,101,242,.4);}
+.platform-card:hover.plat-spotify{border-color:rgba(30,215,96,.4);}
+.platform-card:hover.plat-twitch{border-color:rgba(145,71,255,.4);}
+
+/* Services preview */
+.services-preview-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:14px;}
+.service-preview-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;text-align:center;transition:var(--transition);cursor:pointer;}
+.service-preview-card:hover{background:rgba(108,99,255,.1);border-color:var(--accent);transform:scale(1.03);}
+.service-cat-icon{font-size:1.9rem;margin-bottom:9px;}
+.service-cat-name{font-size:.88rem;font-weight:600;}
+.service-cat-count{font-size:.73rem;color:var(--text-secondary);margin-top:3px;}
+
+/* Steps */
+.steps-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:28px;}
+.step-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:30px;text-align:center;transition:var(--transition);}
+.step-card:hover{transform:translateY(-4px);border-color:var(--accent);}
+.step-number{width:54px;height:54px;border-radius:50%;background:var(--gradient);color:#fff;font-size:1.35rem;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;box-shadow:0 8px 20px rgba(108,99,255,.4);}
+.step-title{font-size:1rem;font-weight:700;margin-bottom:9px;}
+.step-desc{font-size:.88rem;color:var(--text-secondary);line-height:1.6;}
+
+/* Order page */
+.order-page{padding:28px 20px;max-width:1000px;margin:0 auto;}
+.wallet-box{background:linear-gradient(135deg,rgba(108,99,255,.2),rgba(255,101,132,.1));border:1px solid var(--border);border-radius:var(--radius);padding:14px 22px;margin-bottom:18px;display:flex;align-items:center;gap:11px;font-size:.97rem;font-weight:600;flex-wrap:wrap;}
+.wallet-box i{color:var(--accent3);font-size:1.25rem;}
+.glass-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-bottom:18px;}
+.glass-card h3{font-size:1rem;font-weight:700;color:var(--text-primary);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.glass-card h3::before{content:'';width:4px;height:17px;background:var(--gradient);border-radius:2px;flex-shrink:0;}
+.platform-filter-btns{display:flex;flex-wrap:wrap;gap:7px;}
+.plat-btn{padding:6px 13px;border-radius:50px;border:1px solid var(--border);background:var(--glass);color:var(--text-secondary);font-size:.8rem;font-weight:500;cursor:pointer;transition:var(--transition);display:flex;align-items:center;gap:5px;}
+.plat-btn:hover,.plat-btn.active{background:rgba(108,99,255,.2);border-color:var(--accent);color:var(--accent);}
+.plat-btn i,.plat-btn svg{font-size:.95rem;}
+
+/* Service categories strip */
+#serviceCategoriesWrap{margin-top:14px;display:none;}
+#serviceCategoriesWrap.show{display:block;}
+.category-label{font-size:.75rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
+.cat-filter-btns{display:flex;flex-wrap:wrap;gap:7px;}
+.cat-btn{padding:5px 13px;border-radius:50px;border:1px solid var(--border);background:var(--glass);color:var(--text-secondary);font-size:.79rem;font-weight:500;cursor:pointer;transition:var(--transition);}
+.cat-btn:hover,.cat-btn.active{background:rgba(67,233,123,.15);border-color:var(--accent3);color:var(--accent3);}
+
+.search-results{margin-top:10px;display:flex;flex-direction:column;gap:7px;}
+.search-result-item{padding:11px 14px;background:var(--glass);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:var(--transition);display:flex;justify-content:space-between;align-items:center;gap:10px;}
+.search-result-item:hover{border-color:var(--accent);background:rgba(108,99,255,.1);}
+.sri-name{font-size:.88rem;font-weight:600;}
+.sri-meta{font-size:.76rem;color:var(--text-secondary);}
+.sri-price{font-size:.88rem;font-weight:700;color:var(--accent3);white-space:nowrap;}
+.form-section{margin-bottom:22px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+@media(max-width:600px){.form-row{grid-template-columns:1fr;}}
+.form-group{display:flex;flex-direction:column;gap:7px;margin-bottom:14px;}
+.form-group label{font-size:.83rem;font-weight:600;color:var(--text-secondary);}
+.form-group label.required::after{content:' *';color:var(--danger);}
+.form-control{background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 13px;color:var(--text-primary);font-size:.9rem;transition:var(--transition);width:100%;}
+.form-control:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(108,99,255,.15);}
+.form-control::placeholder{color:var(--text-secondary);opacity:.6;}
+select.form-control option{background:var(--bg-card);}
+textarea.form-control{resize:vertical;min-height:78px;}
+.details-text{font-size:.78rem;color:var(--text-secondary);margin-top:4px;line-height:1.5;}
+.details-text.error-text{color:var(--danger);}
+.quick-qty-btns{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px;}
+.quick-qty-btn{padding:4px 11px;border-radius:50px;border:1px solid var(--border);background:var(--glass);color:var(--text-secondary);font-size:.78rem;cursor:pointer;transition:var(--transition);}
+.quick-qty-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(108,99,255,.1);}
+.price-summary-box{background:linear-gradient(135deg,rgba(108,99,255,.15),rgba(67,233,123,.1));border:1px solid rgba(108,99,255,.3);border-radius:var(--radius);padding:18px 22px;display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px;}
+.price-summary-label{font-size:.83rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;}
+.price-summary-amount{font-size:1.55rem;font-weight:800;color:var(--accent3);}
+.btn-order{padding:13px 38px;border-radius:50px;background:var(--gradient);color:#fff;border:none;font-size:.97rem;font-weight:700;box-shadow:0 8px 28px rgba(108,99,255,.4);transition:var(--transition);}
+.btn-order:hover{transform:translateY(-2px);box-shadow:0 12px 38px rgba(108,99,255,.6);}
+.btn-clear{padding:13px 38px;border-radius:50px;background:transparent;color:var(--text-secondary);border:2px solid var(--border);font-size:.97rem;font-weight:700;transition:var(--transition);}
+.btn-clear:hover{border-color:var(--danger);color:var(--danger);}
+
+/* Service description box */
+.svc-desc-box{background:rgba(108,99,255,.08);border:1px solid rgba(108,99,255,.25);border-radius:var(--radius-sm);padding:12px 14px;font-size:.83rem;color:var(--text-secondary);line-height:1.6;margin-top:4px;}
+.svc-desc-box strong{color:var(--accent);}
+
+/* Modals */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);z-index:2000;display:flex;align-items:center;justify-content:center;padding:18px;opacity:0;pointer-events:none;transition:opacity .3s;}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:30px;width:100%;max-width:490px;max-height:90vh;overflow-y:auto;transform:scale(.9);transition:var(--transition);}
+.modal-overlay.open .modal{transform:scale(1);}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;}
+.modal-title{font-size:1.25rem;font-weight:800;}
+.modal-close{background:none;border:none;color:var(--text-secondary);font-size:1.25rem;cursor:pointer;padding:5px;border-radius:var(--radius-sm);}
+.modal-close:hover{color:var(--danger);}
+/* Service cards + detail modal */
+.services-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;}
+.service-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;display:flex;flex-direction:column;gap:10px;transition:var(--transition);}
+.service-card:hover{transform:translateY(-4px);border-color:var(--accent);box-shadow:var(--shadow);}
+.sc-top{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.sc-id{background:var(--glass);padding:2px 7px;border-radius:5px;font-size:.72rem;color:var(--text-secondary);white-space:nowrap;}
+.sc-name{font-size:.92rem;font-weight:600;line-height:1.4;min-height:2.55em;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.sc-rate{font-size:1.15rem;font-weight:800;color:var(--accent3);}
+.sc-unit{font-size:.72rem;color:var(--text-secondary);font-weight:600;}
+.sc-stats{display:flex;flex-wrap:wrap;gap:10px;font-size:.74rem;color:var(--text-secondary);}
+.sc-stats i{color:var(--accent);margin-right:3px;}
+.sc-actions{display:flex;gap:8px;margin-top:4px;}
+.sc-btn{flex:1;padding:8px 10px;border-radius:50px;border:none;font-size:.78rem;font-weight:600;cursor:pointer;transition:var(--transition);display:flex;align-items:center;justify-content:center;gap:5px;}
+.sc-detail{background:var(--glass);color:var(--text-primary);border:1px solid var(--border);}
+.sc-detail:hover{border-color:var(--accent);color:var(--accent);}
+.sc-order{background:var(--gradient);color:#fff;}
+.sc-order:hover{opacity:.9;}
+.sd-row{display:flex;justify-content:space-between;gap:14px;padding:10px 0;border-bottom:1px solid var(--border);font-size:.85rem;}
+.sd-row:last-child{border-bottom:none;}
+.sd-label{color:var(--text-secondary);}
+.sd-val{font-weight:600;text-align:right;}
+.sd-name{font-size:1rem;font-weight:700;line-height:1.5;margin-bottom:10px;}
+.sc-plat{display:inline-flex;align-items:center;gap:6px;font-size:.8rem;font-weight:600;padding:3px 10px;border-radius:50px;background:var(--glass);border:1px solid var(--border);}
+.sc-cat{font-size:.72rem;color:var(--text-secondary);display:flex;align-items:center;gap:4px;}
+.svc-cat-wrap{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px;}
+.auth-tabs{display:flex;gap:4px;margin-bottom:22px;background:var(--bg-secondary);border-radius:var(--radius-sm);padding:4px;}
+.auth-tab{flex:1;padding:9px;text-align:center;border-radius:calc(var(--radius-sm) - 2px);font-size:.88rem;font-weight:600;cursor:pointer;border:none;background:none;color:var(--text-secondary);transition:var(--transition);}
+.auth-tab.active{background:var(--accent);color:#fff;}
+
+/* Dashboard */
+.dashboard-page{padding:28px 20px;max-width:1200px;margin:0 auto;}
+.dash-header{margin-bottom:28px;}
+.dash-welcome{font-size:1.75rem;font-weight:800;}
+.dash-welcome span{background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.dash-sub{color:var(--text-secondary);margin-top:5px;}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(195px,1fr));gap:18px;margin-bottom:28px;}
+.stat-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:22px;display:flex;align-items:center;gap:14px;transition:var(--transition);}
+.stat-card:hover{transform:translateY(-2px);border-color:var(--accent);}
+.stat-icon{width:48px;height:48px;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;font-size:1.35rem;flex-shrink:0;}
+.stat-icon.purple{background:rgba(108,99,255,.2);color:var(--accent);}
+.stat-icon.green{background:rgba(67,233,123,.2);color:var(--accent3);}
+.stat-icon.pink{background:rgba(255,101,132,.2);color:var(--accent2);}
+.stat-icon.blue{background:rgba(0,210,255,.2);color:var(--info);}
+.stat-value{font-size:1.45rem;font-weight:800;}
+.stat-label2{font-size:.8rem;color:var(--text-secondary);}
+.dash-tabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:22px;}
+.dash-tab{padding:8px 18px;border-radius:50px;border:1px solid var(--border);background:var(--glass);color:var(--text-secondary);font-size:.85rem;font-weight:600;cursor:pointer;transition:var(--transition);}
+.dash-tab.active{background:rgba(108,99,255,.2);border-color:var(--accent);color:var(--accent);}
+.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border);}
+.data-table{width:100%;border-collapse:collapse;font-size:.88rem;}
+.data-table th{padding:11px 15px;text-align:left;background:var(--bg-secondary);color:var(--text-secondary);font-weight:600;font-size:.78rem;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);}
+.data-table td{padding:13px 15px;border-bottom:1px solid rgba(255,255,255,.03);color:var(--text-primary);}
+.data-table tr:hover td{background:var(--glass);}
+.data-table tr:last-child td{border-bottom:none;}
+.badge{display:inline-block;padding:3px 9px;border-radius:50px;font-size:.73rem;font-weight:700;text-transform:uppercase;}
+.badge.pending{background:rgba(255,165,0,.2);color:var(--warning);}
+.badge.processing{background:rgba(0,210,255,.2);color:var(--info);}
+.badge.completed{background:rgba(67,233,123,.2);color:var(--success);}
+.badge.cancelled{background:rgba(255,71,87,.2);color:var(--danger);}
+.badge.partial{background:rgba(255,193,7,.2);color:#ffc107;}
+
+/* Payment methods */
+.pm-grid{display:grid;gap:10px;}
+.pm-card{background:var(--glass);border:2px solid var(--border);border-radius:var(--radius-sm);padding:14px;cursor:pointer;transition:var(--transition);}
+.pm-card:hover,.pm-card.selected{border-color:var(--accent);background:rgba(108,99,255,.1);}
+.pm-header{display:flex;align-items:center;gap:11px;margin-bottom:6px;}
+.pm-icon{font-size:1.45rem;}
+.pm-name{font-weight:700;}
+.pm-details{font-size:.8rem;color:var(--text-secondary);line-height:1.5;}
+.pm-account{font-weight:600;color:var(--accent);font-size:.83rem;margin-top:3px;}
+
+/* Affiliate */
+.affiliate-page{padding:38px 20px;max-width:1200px;margin:0 auto;}
+.aff-hero{text-align:center;padding:56px 20px;background:linear-gradient(135deg,rgba(108,99,255,.1),rgba(255,101,132,.05));border:1px solid var(--border);border-radius:var(--radius);margin-bottom:38px;}
+.aff-hero h1{font-size:2.4rem;font-weight:800;margin-bottom:13px;}
+.aff-hero p{color:var(--text-secondary);font-size:1rem;max-width:580px;margin:0 auto 28px;}
+.program-selector{display:grid;grid-template-columns:1fr 1fr;gap:18px;max-width:680px;margin:0 auto 38px;}
+@media(max-width:600px){.program-selector{grid-template-columns:1fr;}}
+.prog-option{background:var(--bg-card);border:2px solid var(--border);border-radius:var(--radius);padding:22px;text-align:center;cursor:pointer;transition:var(--transition);}
+.prog-option:hover,.prog-option.selected{border-color:var(--accent);background:rgba(108,99,255,.1);}
+.prog-option-icon{font-size:2.4rem;margin-bottom:11px;}
+.prog-option-title{font-size:1rem;font-weight:700;margin-bottom:5px;}
+.prog-option-desc{font-size:.83rem;color:var(--text-secondary);}
+.aff-program-content{display:none;}
+.aff-program-content.active{display:block;}
+.aff-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(195px,1fr));gap:22px;margin-bottom:38px;}
+.aff-step{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:22px;text-align:center;}
+.aff-step-num{width:42px;height:42px;border-radius:50%;background:var(--gradient);color:#fff;font-weight:800;font-size:1.05rem;display:flex;align-items:center;justify-content:center;margin:0 auto 13px;}
+.aff-step-title{font-weight:700;margin-bottom:5px;}
+.aff-step-desc{font-size:.83rem;color:var(--text-secondary);}
+.commission-info{background:linear-gradient(135deg,rgba(67,233,123,.15),rgba(56,249,215,.05));border:1px solid rgba(67,233,123,.3);border-radius:var(--radius);padding:28px;margin-bottom:28px;}
+.ci-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:18px;}
+.ci-item{text-align:center;}
+.ci-value{font-size:1.9rem;font-weight:800;color:var(--accent3);}
+.ci-label{font-size:.83rem;color:var(--text-secondary);margin-top:3px;}
+.aff-terms{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-bottom:22px;}
+.aff-terms h3{font-size:1.05rem;font-weight:700;margin-bottom:13px;color:var(--accent);}
+.aff-terms ul{padding-left:18px;color:var(--text-secondary);font-size:.88rem;line-height:2;list-style:disc;}
+
+/* Support */
+.support-page{padding:38px 20px;max-width:880px;margin:0 auto;}
+.support-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px;}
+@media(max-width:680px){.support-grid{grid-template-columns:1fr;}}
+.contact-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;display:flex;align-items:center;gap:14px;transition:var(--transition);text-decoration:none;margin-bottom:13px;}
+.contact-card:hover{border-color:var(--accent);transform:translateX(4px);}
+.contact-icon{width:48px;height:48px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:1.35rem;flex-shrink:0;}
+.contact-icon.whatsapp{background:rgba(37,211,102,.2);color:#25D366;}
+.contact-icon.telegram{background:rgba(0,136,204,.2);color:#0088cc;}
+.contact-icon.email{background:rgba(234,67,53,.2);color:#EA4335;}
+.contact-title{font-weight:700;margin-bottom:3px;}
+.contact-sub{font-size:.8rem;color:var(--text-secondary);}
+
+/* Policy */
+.policy-page{padding:38px 20px;max-width:880px;margin:0 auto;}
+.policy-section{margin-bottom:30px;}
+.policy-section h2{font-size:1.15rem;font-weight:700;color:var(--accent);margin-bottom:13px;padding-bottom:7px;border-bottom:1px solid var(--border);}
+.policy-section p,.policy-section li{font-size:.9rem;color:var(--text-secondary);line-height:1.8;margin-bottom:7px;}
+.policy-section ul{padding-left:18px;list-style:disc;}
+
+/* Footer */
+footer{background:var(--bg-secondary);border-top:1px solid var(--border);padding:56px 20px 28px;}
+.footer-inner{max-width:1200px;margin:0 auto;}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:38px;margin-bottom:38px;}
+@media(max-width:900px){.footer-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:500px){.footer-grid{grid-template-columns:1fr;}}
+.footer-brand-title{font-size:1.75rem;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:3px;}
+.footer-brand-sub{font-size:.73rem;color:var(--text-secondary);letter-spacing:2px;text-transform:uppercase;margin-bottom:13px;}
+.footer-brand-desc{font-size:.86rem;color:var(--text-secondary);line-height:1.7;}
+.footer-col-title{font-size:.88rem;font-weight:700;margin-bottom:13px;}
+.footer-link{display:block;font-size:.83rem;color:var(--text-secondary);margin-bottom:7px;cursor:pointer;transition:var(--transition);}
+.footer-link:hover{color:var(--accent);}
+.footer-bottom{padding-top:22px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:9px;}
+.footer-bottom-text{font-size:.8rem;color:var(--text-secondary);}
+.social-links{display:flex;gap:9px;}
+.social-link{width:34px;height:34px;border-radius:50%;background:var(--glass);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--text-secondary);font-size:.88rem;transition:var(--transition);cursor:pointer;}
+.social-link:hover{background:rgba(108,99,255,.2);border-color:var(--accent);color:var(--accent);}
+
+/* Utility */
+.text-gradient{background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.text-center{text-align:center;}
+.w-full{width:100%;}
+.no-data{text-align:center;padding:38px;color:var(--text-secondary);font-size:.88rem;}
+.no-data i{display:block;font-size:2.4rem;margin-bottom:9px;opacity:.4;}
+@media(max-width:768px){.user-info-nav{display:none;}}
+@media(max-width:480px){.nav-logo-sub{display:none;}}
+</style>
+</head>
+<body>
+
+<div id="loadingScreen">
+  <div class="loader-logo">MTS SMM</div>
+  <div class="loader-sub">Media Tech Support</div>
+  <div class="loader-bar"><div class="loader-bar-fill"></div></div>
+</div>
+
+<div id="syncBadge"><div class="sync-dot"></div><span id="syncText">Live</span></div>
+<div id="toastContainer"></div>
+<div id="sideOverlay" onclick="closeSideMenu()"></div>
+
+<aside id="sideMenu">
+  <div class="side-header">
+    <div>
+      <div class="side-logo-main">MTS</div>
+      <div class="side-logo-sub">Media Tech Support</div>
+    </div>
+    <button class="side-close" onclick="closeSideMenu()"><i class="fas fa-times"></i></button>
+  </div>
+  <nav class="side-nav">
+    <button class="side-nav-item active" onclick="navigate('home');closeSideMenu()"><i class="fas fa-home"></i> Home</button>
+    <button class="side-nav-item" onclick="navigate('order');closeSideMenu()"><i class="fas fa-shopping-cart"></i> Place Order</button>
+    <button class="side-nav-item" onclick="navigate('services');closeSideMenu()"><i class="fas fa-layer-group"></i> Services</button>
+    <button class="side-nav-item" id="sideAffLink" onclick="navigate('affiliate');closeSideMenu()"><i class="fas fa-users"></i> Affiliate Program</button>
+    <button class="side-nav-item" onclick="navigate('privacy');closeSideMenu()"><i class="fas fa-shield-alt"></i> Privacy Policy</button>
+    <button class="side-nav-item" onclick="navigate('support');closeSideMenu()"><i class="fas fa-headset"></i> Contact Support</button>
+    <div class="side-divider"></div>
+    <!-- FIX: sideAdminLink is always hidden by default; only revealed after confirmed admin profile load -->
+    <div id="sideAdminLink" class="hidden">
+      <div class="side-section-label">Admin</div>
+      <button class="side-nav-item" onclick="window.open('mts_admin.html','_blank');closeSideMenu()"><i class="fas fa-cog"></i> Admin Panel</button>
+    </div>
+    <div id="sideLogout" class="hidden">
+      <button class="side-nav-item" style="color:var(--danger)" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+  </nav>
+  <div class="side-footer">© 2025 MTS SMM · Media Tech Support</div>
+</aside>
+
+<nav id="navbar">
+  <div class="nav-left">
+    <button class="hamburger" onclick="toggleSideMenu()"><i class="fas fa-bars"></i></button>
+    <div class="nav-logo" onclick="navigate('home')">
+      <span class="nav-logo-main">MTS</span>
+      <span class="nav-logo-sub">Media Tech Support</span>
+    </div>
+  </div>
+  <div class="nav-center">
+    <button class="nav-link active" onclick="navigate('home')">Home</button>
+    <button class="nav-link" onclick="navigate('order')">Order</button>
+    <button class="nav-link" onclick="navigate('services')">Services</button>
+    <button class="nav-link" id="navAffLink" onclick="navigate('affiliate')">Affiliates</button>
+    <button class="nav-link" onclick="navigate('privacy')">Policies</button>
+  </div>
+  <div class="nav-right">
+    <div id="currencyWrapper">
+      <div id="currencyToggle" onclick="toggleCurrDd()">
+        <span id="currLabel">PKR</span><span style="font-size:.65rem;opacity:.6">▾</span>
+      </div>
+      <div class="curr-dd" id="currDd">
+        <div class="curr-opt active" onclick="setCurr('PKR','Rs',1)">🇵🇰 PKR (Rs)</div>
+        <div class="curr-opt" onclick="setCurr('USD','$',null)">🇺🇸 USD ($)</div>
+        <div class="curr-opt" onclick="setCurr('INR','₹',null)">🇮🇳 INR (₹)</div>
+        <div class="curr-opt" onclick="setCurr('AUD','A$',null)">🇦🇺 AUD (A$)</div>
+        <div class="curr-opt" onclick="setCurr('AED','AED ',null)">🇦🇪 AED</div>
+        <div class="curr-opt" onclick="setCurr('CNY','¥',null)">🇨🇳 CNY (¥)</div>
+        <div class="curr-opt" onclick="setCurr('SAR','SAR ',null)">🇸🇦 SAR</div>
+      </div>
+    </div>
+    <button class="theme-btn" onclick="toggleTheme()"><i class="fas fa-moon" id="themeIcon"></i></button>
+    <!-- FIX: both start visible/hidden correctly; auth state decides which shows -->
+    <div id="guestButtons">
+      <button class="btn-login" onclick="openAuth('login')">Login</button>
+      <button class="btn-signup" style="margin-left:7px" onclick="openAuth('signup')">Sign Up</button>
+    </div>
+    <div id="userProfile" class="hidden">
+      <div class="user-avatar-btn" onclick="toggleDd()">
+        <div class="user-avatar" id="navAvatar">U</div>
+        <div class="user-info-nav">
+          <span class="user-name-nav" id="navUsername">User</span>
+          <span class="user-wallet-nav" id="navWallet">Rs 0.00</span>
+        </div>
+        <i class="fas fa-chevron-down" style="font-size:.72rem;color:var(--text-secondary);margin-left:3px"></i>
+      </div>
+      <div class="user-dd" id="userDd">
+        <button class="dd-item" onclick="navigate('dashboard');closeDd()"><i class="fas fa-tachometer-alt"></i> Dashboard</button>
+        <button class="dd-item" onclick="navigate('dashboard');switchDashTab('orders');closeDd()"><i class="fas fa-list-alt"></i> My Orders</button>
+        <button class="dd-item" onclick="navigate('dashboard');switchDashTab('transactions');closeDd()"><i class="fas fa-exchange-alt"></i> Transactions</button>
+        <button class="dd-item" onclick="openAddFunds();closeDd()"><i class="fas fa-plus-circle"></i> Add Funds</button>
+        <button class="dd-item" onclick="navigate('dashboard');switchDashTab('profile');closeDd()"><i class="fas fa-user"></i> Profile</button>
+        <button class="dd-item" onclick="navigate('support');closeDd()"><i class="fas fa-headset"></i> Support</button>
+        <div class="dd-divider"></div>
+        <button class="dd-item danger" onclick="handleLogout();closeDd()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main id="mainContent">
+
+<!-- HOME PAGE -->
+<div id="page-home" class="page active">
+  <section id="heroSection">
+    <div class="hero-bg"></div>
+    <div class="hero-particles" id="heroParticles"></div>
+    <div class="hero-content">
+      <div class="hero-badge"><span class="pulse"></span>#1 Trusted SMM Panel Worldwide</div>
+      <h1 class="hero-title">Grow Your <span>Social Media</span><br>Presence With Confidence</h1>
+      <p class="hero-desc">MTS SMM manages social media boosting and management services for creators, businesses, agencies, and brands worldwide.</p>
+      <div class="hero-buttons">
+        <button class="btn-hero-primary" onclick="openAuth('signup')"><i class="fas fa-rocket"></i> Get Started</button>
+        <button class="btn-hero-secondary" onclick="navigate('services')"><i class="fas fa-layer-group"></i> Browse Services</button>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-item"><div class="stat-num" data-target="50000">0</div><div class="stat-label">Happy Clients</div></div>
+        <div class="stat-item"><div class="stat-num" data-target="500">0</div><div class="stat-label">Services</div></div>
+        <div class="stat-item"><div class="stat-num" data-target="99">0</div><div class="stat-label">% Satisfaction</div></div>
+        <div class="stat-item"><div class="stat-num" data-target="13">0</div><div class="stat-label">Platforms</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="background:var(--bg-secondary)">
+    <div class="section-inner">
+      <div class="section-header">
+        <span class="section-tag">Why Choose Us</span>
+        <h2 class="section-title">Premium Features for <span>Your Growth</span></h2>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card"><div class="feature-icon">🏆</div><h3 class="feature-title">We Sell Trust</h3><p class="feature-desc">Trusted by clients worldwide with transparent pricing and reliable service delivery.</p></div>
+        <div class="feature-card"><div class="feature-icon">💎</div><h3 class="feature-title">Affordable & Guaranteed</h3><p class="feature-desc">Competitive pricing with stable delivery and customer satisfaction on every order.</p></div>
+        <div class="feature-card"><div class="feature-icon">🌍</div><h3 class="feature-title">Global Platform Services</h3><p class="feature-desc">Support for TikTok, Instagram, Facebook, YouTube, X, Pinterest, Telegram, WhatsApp, and more.</p></div>
+        <div class="feature-card"><div class="feature-icon">🎯</div><h3 class="feature-title">Professional Support</h3><p class="feature-desc">Fast customer assistance and dedicated account support available around the clock.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-inner">
+      <div class="section-header">
+        <span class="section-tag">Supported Platforms</span>
+        <h2 class="section-title">Boost Growth on <span>Every Platform</span></h2>
+      </div>
+      <!-- FIX: this grid is now dynamically generated with real brand icons -->
+      <div class="platforms-grid" id="homePlatformsGrid">
+        <!-- populated by buildHomePlatformGrid() -->
+        <div style="grid-column:1/-1;text-align:center;padding:38px;color:var(--text-secondary)"><i class="fas fa-spinner fa-spin" style="font-size:2rem"></i></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="background:var(--bg-secondary)">
+    <div class="section-inner">
+      <div class="section-header">
+        <span class="section-tag">Our Services</span>
+        <h2 class="section-title">Everything You Need to <span>Go Viral</span></h2>
+      </div>
+      <div class="services-preview-grid">
+        <div class="service-preview-card" onclick="navigate('order')"><div class="service-cat-icon">👥</div><div class="service-cat-name">Followers</div><div class="service-cat-count">Real & HQ</div></div>
+        <div class="service-preview-card" onclick="navigate('order')"><div class="service-cat-icon">❤️</div><div class="service-cat-name">Likes</div><div class="service-cat-count">All Platforms</div></div>
+        <div class="service-preview-card" onclick="navigate('order')"><div class="service-cat-icon">👁️</div><div class="service-cat-name">Views</div><div class="service-cat-count">Fast Delivery</div></div>
+        <div class="service-preview-card" onclick="navigate('order')"><div class="service-cat-icon">💬</div><div class="service-cat-name">Comments</div><div class="service-cat-count">Custom & Random</div></div>
+        <div class="service-preview-card" onclick="navigate('order')"><div class="service-cat-icon">🔁</div><div class="service-cat-name">Shares</div><div class="service-cat-count">Viral Boost</div></div>
+        <div class="service-preview-card" onclick="navigate('order')"><div class="service-cat-icon">⏱️</div><div class="service-cat-name">Watch Time</div><div class="service-cat-count">YouTube & More</div></div>
+        <div class="service-preview-card" onclick="navigate('order')"><div class="service-cat-icon">🔔</div><div class="service-cat-name">Subscribers</div><div class="service-cat-count">Channels & Pages</div></div>
+        <div class="service-preview-card" onclick="navigate('order')"><div class="service-cat-icon">👑</div><div class="service-cat-name">Members</div><div class="service-cat-count">Telegram & Discord</div></div>
+        <div class="service-preview-card" onclick="navigate('order')"><div class="service-cat-icon">💰</div><div class="service-cat-name">Monetization</div><div class="service-cat-count">Unlock Earnings</div></div>
+        <div class="service-preview-card" onclick="navigate('order')"><div class="service-cat-icon">⭐</div><div class="service-cat-name">Premium</div><div class="service-cat-count">Platform Access</div></div>
+      </div>
+      <div style="text-align:center;margin-top:28px">
+        <button class="btn-hero-primary" onclick="navigate('order')"><i class="fas fa-shopping-cart"></i> Place Order Now</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-inner">
+      <div class="section-header">
+        <span class="section-tag">How It Works</span>
+        <h2 class="section-title">Order in <span>4 Simple Steps</span></h2>
+      </div>
+      <div class="steps-grid">
+        <div class="step-card"><div class="step-number">1</div><h3 class="step-title">Select Platform</h3><p class="step-desc">Choose your target social media platform.</p></div>
+        <div class="step-card"><div class="step-number">2</div><h3 class="step-title">Choose Service</h3><p class="step-desc">Browse our catalog and pick the service you need.</p></div>
+        <div class="step-card"><div class="step-number">3</div><h3 class="step-title">Place Order</h3><p class="step-desc">Enter your details and place your order.</p></div>
+        <div class="step-card"><div class="step-number">4</div><h3 class="step-title">Receive Delivery</h3><p class="step-desc">Watch your social media grow in real time.</p></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ORDER PAGE -->
+<div id="page-order" class="page">
+  <div class="order-page">
+    <div class="wallet-box">
+      <i class="fas fa-wallet"></i>
+      <span>Wallet Balance: <strong id="walletDisplay">Rs 0.00</strong></span>
+      <span style="margin-left:auto;font-size:.75rem;color:var(--text-secondary)" id="walletPKR"></span>
+    </div>
+    <!-- Platform quick-filter -->
+    <div class="glass-card">
+      <h3><i class="fas fa-filter"></i> Quick Platform Filter</h3>
+      <div class="platform-filter-btns" id="platformFilterBtns">
+        <button class="plat-btn active" data-plat="all" onclick="filterByPlatform('all',this)"><i class="fas fa-globe"></i> All</button>
+      </div>
+      <!-- FIX: service categories appear here after platform is picked -->
+      <div id="serviceCategoriesWrap">
+        <div class="category-label" style="margin-top:14px">Filter by Category</div>
+        <div class="cat-filter-btns" id="categoryFilterBtns"></div>
+      </div>
+    </div>
+    <!-- Search -->
+    <div class="glass-card">
+      <h3><i class="fas fa-search"></i> Search Services</h3>
+      <div class="form-group">
+        <label>Search by Platform, Service Name, ID, or Rate</label>
+        <input type="text" class="form-control" id="searchKeyword" placeholder="e.g., TikTok Followers, 9022..." oninput="performSearch()">
+      </div>
+      <div id="searchResults"></div>
+    </div>
+    <!-- Service selection -->
+    <div class="glass-card">
+      <div class="form-section">
+        <h3><i class="fas fa-list"></i> Service Selection</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="required">Platform</label>
+            <select class="form-control" id="platformSelect" onchange="onPlatformSelectChange()">
+              <option value="">Select Platform</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="required">Service</label>
+            <select class="form-control" id="serviceSelect" onchange="onServiceChange()">
+              <option value="">Select Service</option>
+            </select>
+            <div class="details-text" id="serviceDetails"></div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="required">Quantity</label>
+            <input type="number" class="form-control" id="quantityInput" placeholder="Enter quantity" min="1" oninput="calcPrice()">
+            <div class="details-text error-text" id="qtyError" style="display:none"></div>
+            <div class="quick-qty-btns">
+              <button class="quick-qty-btn" onclick="setQty(500)">500</button>
+              <button class="quick-qty-btn" onclick="setQty(1000)">1K</button>
+              <button class="quick-qty-btn" onclick="setQty(2000)">2K</button>
+              <button class="quick-qty-btn" onclick="setQty(5000)">5K</button>
+              <button class="quick-qty-btn" onclick="setQty(10000)">10K</button>
+              <button class="quick-qty-btn" onclick="setQty(100000)">100K</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Total Amount</label>
+            <input type="text" class="form-control" id="totalAmount" placeholder="0.00" readonly>
+          </div>
+        </div>
+      </div>
+      <div class="form-section">
+        <h3><i class="fas fa-info-circle"></i> Service Details</h3>
+        <!-- FIX: service description shown here with proper styling -->
+        <div id="serviceDescBox" class="svc-desc-box hidden"></div>
+        <div style="height:10px" id="serviceDescSpacer" class="hidden"></div>
+        <div class="form-group" id="linkBox">
+          <label class="required" id="linkLabel">Post / Profile Link</label>
+          <input type="text" class="form-control" id="linkInput" placeholder="Enter link or profile URL">
+        </div>
+        <div class="form-group hidden" id="emailBox">
+          <label class="required">Email Address</label>
+          <input type="email" class="form-control" id="emailInput" placeholder="Enter your email">
+        </div>
+        <div class="form-group hidden" id="countryBox">
+          <label class="required">Target Country</label>
+          <select class="form-control" id="countrySelect">
+            <option value="">Select Country</option>
+            <option>United States</option><option>United Kingdom</option><option>Canada</option>
+            <option>Australia</option><option>India</option><option>Pakistan</option>
+            <option>UAE</option><option>Saudi Arabia</option><option>Other</option>
+          </select>
+        </div>
+        <div class="form-group hidden" id="customCommentsBox">
+          <label class="required" id="customCommentsLabel">Custom Comments</label>
+          <div class="details-text" style="margin-bottom:7px" id="customCommentsHint">Enter one comment per line</div>
+          <textarea class="form-control" id="customCommentsInput" rows="5" oninput="updateCommentCount()"></textarea>
+          <div class="details-text" id="commentCountDisplay">0 / 0 comments</div>
+        </div>
+      </div>
+      <div class="price-summary-box">
+        <div>
+          <div class="price-summary-label">Price Summary</div>
+          <div style="font-size:.78rem;color:var(--text-secondary);margin-top:3px" id="priceBreakdown">Select a service to see pricing</div>
+        </div>
+        <div class="price-summary-amount" id="priceSummary">Rs 0.00</div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:11px">
+        <button class="btn-order" onclick="placeOrder()"><i class="fas fa-shopping-cart"></i> Place Order</button>
+        <button class="btn-clear" onclick="clearOrderForm()"><i class="fas fa-times"></i> Clear</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SERVICES PAGE -->
+<div id="page-services" class="page">
+  <div style="padding:28px 20px;max-width:1200px;margin:0 auto">
+    <div class="section-header" style="margin-bottom:28px">
+      <span class="section-tag">All Services</span>
+      <h2 class="section-title">Our <span>Service Catalog</span></h2>
+      <p style="font-size:.78rem;color:var(--accent3);margin-top:7px" id="servicesLastUpdated"></p>
+    </div>
+    <div class="glass-card">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Search Services</label>
+          <input type="text" class="form-control" id="servicesSearch" placeholder="Search by name, platform, ID..." oninput="filterServicesPage()">
+        </div>
+        <div class="form-group">
+          <label>Filter by Platform</label>
+          <select class="form-control" id="servicesPlatformFilter" onchange="onServicesPlatformChange()">
+            <option value="">All Platforms</option>
+          </select>
+        </div>
+      </div>
+      <div id="servicesCategoryWrap" class="svc-cat-wrap"></div>
+    </div>
+    <div id="servicesGrid" class="services-grid">
+      <div class="no-data" style="grid-column:1/-1"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
+    </div>
+  </div>
+</div>
+
+<!-- AFFILIATE PAGE -->
+<div id="page-affiliate" class="page">
+  <div class="affiliate-page">
+    <div class="aff-hero">
+      <span class="section-tag">Affiliate Partner Program</span>
+      <h1>Join Us <span class="text-gradient">And Earn</span></h1>
+      <p>Choose your preferred earning model and start making money with MTS SMM today.</p>
+    </div>
+    <div style="max-width:580px;margin:0 auto 38px">
+      <h3 style="text-align:center;margin-bottom:18px;font-size:1.05rem;color:var(--text-secondary)">Select Program Type</h3>
+      <div class="program-selector" id="programSelector">
+        <div class="prog-option selected" id="commOption" onclick="selectAffProgram('commission')">
+          <div class="prog-option-icon">💰</div>
+          <div class="prog-option-title">Affiliate Commission</div>
+          <div class="prog-option-desc">Earn % commission on every referral order</div>
+        </div>
+        <div class="prog-option" id="salaryOption" onclick="selectAffProgram('salary')">
+          <div class="prog-option-icon">💼</div>
+          <div class="prog-option-title">Salary Based</div>
+          <div class="prog-option-desc">Apply for employee position</div>
+        </div>
+      </div>
+    </div>
+    <div class="aff-program-content active" id="commProgram">
+      <div class="commission-info">
+        <h3 style="margin-bottom:18px;font-size:1.15rem;font-weight:700">Commission Program Details</h3>
+        <div class="ci-grid">
+          <div class="ci-item"><div class="ci-value" id="commRate">20%</div><div class="ci-label">Commission Rate</div></div>
+          <div class="ci-item"><div class="ci-value" id="minPayout">$50</div><div class="ci-label">Minimum Payout</div></div>
+          <div class="ci-item"><div class="ci-value">3</div><div class="ci-label">Payout Methods</div></div>
+          <div class="ci-item"><div class="ci-value">∞</div><div class="ci-label">Earning Potential</div></div>
+        </div>
+      </div>
+      <div class="aff-steps">
+        <div class="aff-step"><div class="aff-step-num">1</div><div class="aff-step-title">Register</div><div class="aff-step-desc">Fill out application form</div></div>
+        <div class="aff-step"><div class="aff-step-num">2</div><div class="aff-step-title">Get Referral Link</div><div class="aff-step-desc">Share your unique link</div></div>
+        <div class="aff-step"><div class="aff-step-num">3</div><div class="aff-step-title">Share</div><div class="aff-step-desc">Promote on social media</div></div>
+        <div class="aff-step"><div class="aff-step-num">4</div><div class="aff-step-title">Earn</div><div class="aff-step-desc">Get paid on every order</div></div>
+      </div>
+      <div class="aff-terms">
+        <h3>📋 Terms & Conditions</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+          <div><h4 style="color:var(--accent);margin-bottom:7px">✅ Eligibility</h4><ul><li>Must be 18+</li><li>Real information required</li></ul></div>
+          <div><h4 style="color:var(--accent3);margin-bottom:7px">✅ Allowed</h4><ul><li>Social Media promotion</li><li>WhatsApp & Email</li></ul></div>
+          <div><h4 style="color:var(--danger);margin-bottom:7px">🚫 Prohibited</h4><ul><li>No Spam or Cold Calling</li><li>No False Claims</li></ul></div>
+          <div><h4 style="color:var(--warning);margin-bottom:7px">💵 Commission Rules</h4><ul><li>Paid after successful orders</li><li>Rates may change with 7 days notice</li></ul></div>
+        </div>
+      </div>
+      <div id="commApplySection">
+        <div id="commApplyBtnDiv" style="text-align:center">
+          <button class="btn-hero-primary" onclick="showAffiliateForm()"><i class="fas fa-user-plus"></i> Apply Now</button>
+        </div>
+        <div id="affRegForm" class="glass-card hidden">
+          <h3>Affiliate Registration</h3>
+          <div class="form-group"><label><input type="checkbox" id="affTermsCheck"> I agree to the Affiliate Terms & Conditions</label></div>
+          <div class="form-row">
+            <div class="form-group"><label class="required">Full Name</label><input type="text" class="form-control" id="affName"></div>
+            <div class="form-group"><label class="required">Username</label><input type="text" class="form-control" id="affUsername"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="required">Email</label><input type="email" class="form-control" id="affEmail"></div>
+            <div class="form-group"><label class="required">Phone / WhatsApp</label><input type="text" class="form-control" id="affPhone"></div>
+          </div>
+          <div class="form-group"><label class="required">About Yourself</label><textarea class="form-control" id="affAbout" rows="3"></textarea></div>
+          <div class="form-group"><label class="required">Experience (Detailed)</label><textarea class="form-control" id="affExperience" rows="4"></textarea></div>
+          <div class="form-group"><label>Portfolio Link</label><input type="text" class="form-control" id="affPortfolio"></div>
+          <button class="btn-order" onclick="submitAffiliateApp()"><i class="fas fa-paper-plane"></i> Submit Application</button>
+        </div>
+        <div id="affDashboard" class="hidden">
+          <div class="stats-grid" style="margin-bottom:22px">
+            <div class="stat-card"><div class="stat-icon purple"><i class="fas fa-link"></i></div><div><div class="stat-value" id="affRefCount">0</div><div class="stat-label2">Referrals</div></div></div>
+            <div class="stat-card"><div class="stat-icon green"><i class="fas fa-dollar-sign"></i></div><div><div class="stat-value" id="affEarnings">$0</div><div class="stat-label2">Total Earned</div></div></div>
+            <div class="stat-card"><div class="stat-icon pink"><i class="fas fa-clock"></i></div><div><div class="stat-value" id="affPending">$0</div><div class="stat-label2">Pending</div></div></div>
+          </div>
+          <div class="glass-card">
+            <h3>Your Referral Link</h3>
+            <div style="display:flex;gap:9px;flex-wrap:wrap">
+              <input type="text" class="form-control" id="affRefLink" readonly style="flex:1">
+              <button class="btn-order" onclick="copyRefLink()" style="padding:10px 18px"><i class="fas fa-copy"></i> Copy</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="aff-program-content" id="salaryProgram">
+      <div class="glass-card">
+        <div style="text-align:center;padding:18px 0 22px">
+          <div style="font-size:2.8rem;margin-bottom:9px">💼</div>
+          <h2 style="font-size:1.45rem;font-weight:800;margin-bottom:7px">Salary Based Program</h2>
+          <p style="color:var(--text-secondary)">Join our team as a salaried employee</p>
+        </div>
+        <div id="salaryAppForm">
+          <div style="text-align:center;margin-bottom:22px">
+            <button class="btn-hero-primary" onclick="document.getElementById('salaryFormFields').classList.toggle('hidden')"><i class="fas fa-paper-plane"></i> Send Application</button>
+          </div>
+          <div class="hidden" id="salaryFormFields">
+            <div class="form-row"><div class="form-group"><label class="required">Full Name</label><input type="text" class="form-control" id="salaryName"></div><div class="form-group"><label class="required">Username</label><input type="text" class="form-control" id="salaryUsername"></div></div>
+            <div class="form-row"><div class="form-group"><label class="required">Email</label><input type="email" class="form-control" id="salaryEmail"></div><div class="form-group"><label class="required">Phone / WhatsApp</label><input type="text" class="form-control" id="salaryPhone"></div></div>
+            <div class="form-group"><label class="required">About Yourself</label><textarea class="form-control" id="salaryAbout" rows="3"></textarea></div>
+            <div class="form-group"><label class="required">Experience (Full Detail)</label><textarea class="form-control" id="salaryExperience" rows="5"></textarea></div>
+            <div class="form-group"><label>Portfolio Link</label><input type="text" class="form-control" id="salaryPortfolio"></div>
+            <button class="btn-order" onclick="submitSalaryApp()"><i class="fas fa-paper-plane"></i> Submit Application</button>
+          </div>
+        </div>
+        <div id="empPortalDiv" class="hidden" style="margin-top:28px">
+          <h3 style="margin-bottom:18px">Employee Portal</h3>
+          <div style="display:flex;gap:9px;margin-bottom:22px;flex-wrap:wrap">
+            <button class="emp-tab plat-btn active" onclick="switchEmpTab('Attendance',this)">📅 Daily Attendance</button>
+            <button class="emp-tab plat-btn" onclick="switchEmpTab('Work',this)">📋 Daily Work Detail</button>
+            <button class="emp-tab plat-btn" onclick="switchEmpTab('History',this)">📊 History</button>
+          </div>
+          <div class="emp-panel" id="empAttendance">
+            <div class="glass-card"><h3>Daily Attendance</h3>
+              <div class="form-row"><div class="form-group"><label class="required">Username</label><input type="text" class="form-control" id="attUser"></div><div class="form-group"><label class="required">Email</label><input type="email" class="form-control" id="attEmail"></div></div>
+              <div class="form-row"><div class="form-group"><label class="required">Login Time</label><input type="time" class="form-control" id="attLoginTime"></div><div class="form-group"><label class="required">Logout Time</label><input type="time" class="form-control" id="attLogoutTime"></div></div>
+              <div class="form-group"><label class="required">Working Hours</label><input type="text" class="form-control" id="attWorkingHours" placeholder="e.g., 8 hours"></div>
+              <button class="btn-order" onclick="submitAttendance()"><i class="fas fa-check-circle"></i> Submit</button>
+            </div>
+          </div>
+          <div class="emp-panel hidden" id="empWork">
+            <div class="glass-card"><h3>Daily Work Detail</h3>
+              <div class="form-row"><div class="form-group"><label class="required">Username</label><input type="text" class="form-control" id="workUser"></div><div class="form-group"><label class="required">Email</label><input type="email" class="form-control" id="workEmail"></div></div>
+              <div class="form-group"><label class="required">Job Detail</label><textarea class="form-control" id="workJobDetail" rows="3"></textarea></div>
+              <div class="form-group"><label class="required">Task Type</label>
+                <select class="form-control" id="workTaskType" onchange="toggleWorkFields()">
+                  <option value="">Select Task Type</option>
+                  <option value="placed_order">Placed Order</option>
+                  <option value="post_sharing">Post Sharing</option>
+                </select>
+              </div>
+              <div id="placedOrderFields" class="hidden">
+                <div class="form-row"><div class="form-group"><label class="required">Order ID</label><input type="text" class="form-control" id="workOrderId"></div><div class="form-group"><label class="required">Service Name</label><input type="text" class="form-control" id="workServiceName"></div></div>
+                <div class="form-row"><div class="form-group"><label class="required">Amount (Rs)</label><input type="number" class="form-control" id="workAmount"></div><div class="form-group"><label class="required">Order Link</label><input type="text" class="form-control" id="workOrderLink"></div></div>
+              </div>
+              <div id="postSharingFields" class="hidden">
+                <div class="form-group"><label class="required">Platform(s) Shared On</label>
+                  <div style="display:flex;flex-wrap:wrap;gap:7px;padding:9px;background:var(--glass);border-radius:var(--radius-sm);border:1px solid var(--border)" id="sharePlatformChecks">
+                    <label style="display:flex;align-items:center;gap:5px;font-size:.85rem"><input type="checkbox" value="TikTok"> TikTok</label>
+                    <label style="display:flex;align-items:center;gap:5px;font-size:.85rem"><input type="checkbox" value="Instagram"> Instagram</label>
+                    <label style="display:flex;align-items:center;gap:5px;font-size:.85rem"><input type="checkbox" value="Facebook"> Facebook</label>
+                    <label style="display:flex;align-items:center;gap:5px;font-size:.85rem"><input type="checkbox" value="Twitter"> X/Twitter</label>
+                    <label style="display:flex;align-items:center;gap:5px;font-size:.85rem"><input type="checkbox" value="YouTube"> YouTube</label>
+                    <label style="display:flex;align-items:center;gap:5px;font-size:.85rem"><input type="checkbox" value="WhatsApp"> WhatsApp</label>
+                    <label style="display:flex;align-items:center;gap:5px;font-size:.85rem"><input type="checkbox" value="Telegram"> Telegram</label>
+                  </div>
+                </div>
+                <div class="form-group"><label class="required">Post Description</label><textarea class="form-control" id="workPostDesc" rows="3"></textarea></div>
+                <div class="form-group"><label class="required">Platform ID/Handle</label><input type="text" class="form-control" id="workPlatformId"></div>
+                <div class="form-group"><label>Is This Post Boosted?</label>
+                  <select class="form-control" id="workIsBoosted" onchange="toggleBoostFields()"><option value="no">No</option><option value="yes">Yes</option></select>
+                </div>
+                <div id="boostFields" class="hidden">
+                  <div style="background:rgba(67,233,123,.1);border:1px solid rgba(67,233,123,.3);border-radius:var(--radius-sm);padding:11px;margin-bottom:11px;font-size:.83rem;color:var(--accent3)"><i class="fas fa-info-circle"></i> Boosted posts get <strong>5% extra commission</strong>!</div>
+                  <div class="form-row"><div class="form-group"><label class="required">Boost Platform</label><input type="text" class="form-control" id="workBoostPlatform"></div><div class="form-group"><label class="required">Boost Amount (Rs)</label><input type="number" class="form-control" id="workBoostAmount"></div></div>
+                </div>
+              </div>
+              <button class="btn-order" onclick="submitWorkDetail()"><i class="fas fa-paper-plane"></i> Submit Work Detail</button>
+            </div>
+          </div>
+          <div class="emp-panel hidden" id="empHistory">
+            <div class="glass-card"><h3>Work History</h3><div id="empHistoryContent"><p style="padding:18px;color:var(--text-secondary)">Loading...</p></div></div>
+            <div class="glass-card"><h3>Attendance History</h3><div id="empAttHistContent"><p style="padding:18px;color:var(--text-secondary)">Loading...</p></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD PAGE -->
+<div id="page-dashboard" class="page">
+  <div class="dashboard-page">
+    <div class="dash-header">
+      <div class="dash-welcome">Welcome back, <span id="dashUsername">User</span> 👋</div>
+      <div class="dash-sub">Manage your orders, wallet, and account settings.</div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-icon purple"><i class="fas fa-wallet"></i></div><div><div class="stat-value" id="dashWallet">Rs 0.00</div><div class="stat-label2">Wallet Balance</div></div></div>
+      <div class="stat-card"><div class="stat-icon blue"><i class="fas fa-shopping-bag"></i></div><div><div class="stat-value" id="dashOrderCount">0</div><div class="stat-label2">Total Orders</div></div></div>
+      <div class="stat-card"><div class="stat-icon green"><i class="fas fa-check-circle"></i></div><div><div class="stat-value" id="dashCompleted">0</div><div class="stat-label2">Completed</div></div></div>
+      <div class="stat-card"><div class="stat-icon pink"><i class="fas fa-users"></i></div><div><div class="stat-value" id="dashRefEarnings">$0</div><div class="stat-label2">Affiliate Earnings</div></div></div>
+    </div>
+    <div class="dash-tabs">
+      <button class="dash-tab active" onclick="switchDashTab('orders',this)">📦 My Orders</button>
+      <button class="dash-tab" onclick="switchDashTab('transactions',this)">💳 Transactions</button>
+      <button class="dash-tab" onclick="switchDashTab('affiliate',this)">👥 Affiliate</button>
+      <button class="dash-tab" onclick="switchDashTab('profile',this)">👤 Profile</button>
+      <button class="dash-tab" onclick="switchDashTab('tickets',this)">🎫 Support</button>
+    </div>
+    <div id="dashTab-orders" class="glass-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:9px">
+        <h3 style="margin:0">My Orders</h3>
+        <button class="btn-order" onclick="navigate('order')" style="padding:8px 18px;font-size:.85rem"><i class="fas fa-plus"></i> New Order</button>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table"><thead><tr><th>Order #</th><th>Service</th><th>Qty</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
+        <tbody id="ordersTableBody"><tr><td colspan="6" class="no-data"><i class="fas fa-box-open"></i>No orders yet</td></tr></tbody></table>
+      </div>
+    </div>
+    <div id="dashTab-transactions" class="glass-card hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:9px">
+        <h3 style="margin:0">Transaction History</h3>
+        <button class="btn-order" onclick="openAddFunds()" style="padding:8px 18px;font-size:.85rem"><i class="fas fa-plus"></i> Add Funds</button>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table"><thead><tr><th>Txn #</th><th>Type</th><th>Amount</th><th>Method</th><th>Status</th><th>Date</th></tr></thead>
+        <tbody id="transTableBody"><tr><td colspan="6" class="no-data"><i class="fas fa-exchange-alt"></i>No transactions yet</td></tr></tbody></table>
+      </div>
+    </div>
+    <div id="dashTab-affiliate" class="glass-card hidden">
+      <h3>Affiliate Earnings</h3>
+      <div class="stats-grid" style="margin-bottom:18px">
+        <div class="stat-card"><div class="stat-icon purple"><i class="fas fa-users"></i></div><div><div class="stat-value" id="dashAffRefs">0</div><div class="stat-label2">Referrals</div></div></div>
+        <div class="stat-card"><div class="stat-icon green"><i class="fas fa-dollar-sign"></i></div><div><div class="stat-value" id="dashAffEarned">$0</div><div class="stat-label2">Total Earned</div></div></div>
+      </div>
+      <div class="form-group"><label>Your Referral Link</label>
+        <div style="display:flex;gap:9px"><input type="text" class="form-control" id="dashRefLink" readonly><button class="btn-order" onclick="copyDashRefLink()" style="padding:10px 16px"><i class="fas fa-copy"></i></button></div>
+      </div>
+    </div>
+    <div id="dashTab-profile" class="glass-card hidden">
+      <h3>Profile Settings</h3>
+      <div class="form-row"><div class="form-group"><label>Full Name</label><input type="text" class="form-control" id="profileName"></div><div class="form-group"><label>Username</label><input type="text" class="form-control" id="profileUsername" readonly></div></div>
+      <div class="form-group"><label>Email</label><input type="email" class="form-control" id="profileEmail" readonly></div>
+      <div class="form-group"><label>Phone</label><input type="text" class="form-control" id="profilePhone"></div>
+      <button class="btn-order" onclick="updateProfile()" style="margin-bottom:18px"><i class="fas fa-save"></i> Save Changes</button>
+      <div style="border-top:1px solid var(--border);padding-top:18px">
+        <h4 style="margin-bottom:14px">Change Password</h4>
+        <div class="form-group"><label>New Password</label><input type="password" class="form-control" id="newPassword"></div>
+        <div class="form-group"><label>Confirm Password</label><input type="password" class="form-control" id="confirmPassword"></div>
+        <button class="btn-order" onclick="changePassword()"><i class="fas fa-key"></i> Update Password</button>
+      </div>
+    </div>
+    <div id="dashTab-tickets" class="glass-card hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:9px">
+        <h3 style="margin:0">Support Tickets</h3>
+        <button class="btn-order" onclick="navigate('support')" style="padding:8px 18px;font-size:.85rem"><i class="fas fa-plus"></i> New Ticket</button>
+      </div>
+      <div id="ticketsContent"><p class="no-data"><i class="fas fa-ticket-alt"></i>No tickets yet</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- PRIVACY PAGE -->
+<div id="page-privacy" class="page">
+  <div class="policy-page">
+    <div style="margin-bottom:28px"><span class="section-tag">Legal</span><h1 class="section-title" style="margin-top:11px">Privacy <span>Policy</span></h1><p style="color:var(--text-secondary);font-size:.9rem">Last updated: January 2025</p></div>
+    <div class="policy-section"><h2>1. Introduction</h2><p>MTS SMM ("Media Tech Support") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and safeguard your information.</p></div>
+    <div class="policy-section"><h2>2. Information We Collect</h2><ul><li>Personal identification information (Name, email, phone)</li><li>Account credentials and profile information</li><li>Order details and transaction history</li><li>Device information and usage data</li></ul></div>
+    <div class="policy-section"><h2>3. How We Use Your Information</h2><ul><li>Process and fulfill your service orders</li><li>Manage your account and wallet</li><li>Send order updates and notifications</li><li>Improve our platform and services</li></ul></div>
+    <div class="policy-section"><h2>4. Data Security</h2><p>We implement SSL encryption and secure database storage to protect your information.</p></div>
+    <div class="policy-section"><h2>5. Contact Us</h2><p>For privacy-related inquiries: <a href="mailto:zone43157@gmail.com" style="color:var(--accent)">zone43157@gmail.com</a></p></div>
+  </div>
+</div>
+
+<!-- SUPPORT PAGE -->
+<div id="page-support" class="page">
+  <div class="support-page">
+    <div style="margin-bottom:28px"><span class="section-tag">Help Center</span><h1 class="section-title" style="margin-top:11px">Contact <span>Support</span></h1></div>
+    <div class="support-grid">
+      <div>
+        <a href="https://wa.me/923218595421" target="_blank" class="contact-card"><div class="contact-icon whatsapp"><i class="fab fa-whatsapp"></i></div><div><div class="contact-title">WhatsApp</div><div class="contact-sub">+92 321 8595421</div></div></a>
+        <a href="https://telegram.org/dl" target="_blank" class="contact-card"><div class="contact-icon telegram"><i class="fab fa-telegram"></i></div><div><div class="contact-title">Telegram</div><div class="contact-sub">Chat with us on Telegram</div></div></a>
+        <a href="mailto:zone43157@gmail.com" class="contact-card"><div class="contact-icon email"><i class="fas fa-envelope"></i></div><div><div class="contact-title">Email</div><div class="contact-sub">zone43157@gmail.com</div></div></a>
+      </div>
+      <div>
+        <div class="glass-card">
+          <h3>Submit a Ticket</h3>
+          <div class="form-group"><label class="required">Name</label><input type="text" class="form-control" id="ticketName"></div>
+          <div class="form-group"><label class="required">Email</label><input type="email" class="form-control" id="ticketEmail"></div>
+          <div class="form-group"><label class="required">Subject</label><input type="text" class="form-control" id="ticketSubject"></div>
+          <div class="form-group"><label class="required">Message</label><textarea class="form-control" id="ticketMessage" rows="5"></textarea></div>
+          <button class="btn-order" onclick="submitTicket()"><i class="fas fa-paper-plane"></i> Submit Ticket</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand-title">MTS SMM</div>
+        <div class="footer-brand-sub">Media Tech Support</div>
+        <p class="footer-brand-desc">Professional social media marketing platform. We manage, boost, and grow your social media presence worldwide.</p>
+      </div>
+      <div>
+        <div class="footer-col-title">Quick Links</div>
+        <span class="footer-link" onclick="navigate('home')">Home</span>
+        <span class="footer-link" onclick="navigate('order')">Place Order</span>
+        <span class="footer-link" onclick="navigate('services')">Services</span>
+        <span class="footer-link" onclick="navigate('affiliate')">Affiliates</span>
+      </div>
+      <div>
+        <div class="footer-col-title">Support</div>
+        <span class="footer-link" onclick="navigate('support')">Contact Us</span>
+        <span class="footer-link" onclick="navigate('privacy')">Privacy Policy</span>
+        <span class="footer-link" onclick="navigate('dashboard')">My Account</span>
+      </div>
+      <div>
+        <div class="footer-col-title">Contact</div>
+        <span class="footer-link"><i class="fab fa-whatsapp" style="color:#25D366"></i> +92 321 8595421</span>
+        <span class="footer-link"><i class="fas fa-envelope" style="color:#EA4335"></i> zone43157@gmail.com</span>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span class="footer-bottom-text">© 2025 MTS SMM - Media Tech Support. All rights reserved.</span>
+      <div class="social-links">
+        <a class="social-link" href="https://wa.me/923218595421" target="_blank"><i class="fab fa-whatsapp"></i></a>
+        <a class="social-link" href="https://telegram.org/dl" target="_blank"><i class="fab fa-telegram"></i></a>
+        <a class="social-link" href="mailto:zone43157@gmail.com"><i class="fas fa-envelope"></i></a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- AUTH MODAL -->
+<div class="modal-overlay" id="authModal">
+  <div class="modal">
+    <div class="modal-header"><h2 class="modal-title" id="authModalTitle">Welcome Back</h2><button class="modal-close" onclick="closeAuth()"><i class="fas fa-times"></i></button></div>
+    <div class="auth-tabs"><button class="auth-tab active" id="loginTab" onclick="switchAuthTab('login')">Login</button><button class="auth-tab" id="signupTab" onclick="switchAuthTab('signup')">Sign Up</button></div>
+    <div id="loginForm">
+      <div class="form-group"><label class="required">Email</label><input type="email" class="form-control" id="loginEmail"></div>
+      <div class="form-group"><label class="required">Password</label><input type="password" class="form-control" id="loginPassword"></div>
+      <div style="display:flex;justify-content:flex-end;margin-bottom:14px"><button style="background:none;border:none;color:var(--accent);font-size:.83rem;cursor:pointer" onclick="showForgotPw()">Forgot Password?</button></div>
+      <button class="btn-order w-full" onclick="handleLogin()"><i class="fas fa-sign-in-alt"></i> Login</button>
+    </div>
+    <div id="forgotForm" class="hidden">
+      <p style="color:var(--text-secondary);font-size:.88rem;margin-bottom:14px">Enter your email to receive a reset link.</p>
+      <div class="form-group"><label>Email</label><input type="email" class="form-control" id="forgotEmail"></div>
+      <button class="btn-order w-full" onclick="handleForgotPw()"><i class="fas fa-paper-plane"></i> Send Reset Link</button>
+      <button style="background:none;border:none;color:var(--text-secondary);font-size:.83rem;cursor:pointer;margin-top:11px;display:block" onclick="showLoginForm()">← Back to Login</button>
+    </div>
+    <div id="signupForm" class="hidden">
+      <div class="form-row"><div class="form-group"><label class="required">Full Name</label><input type="text" class="form-control" id="signupName"></div><div class="form-group"><label class="required">Username</label><input type="text" class="form-control" id="signupUsername"></div></div>
+      <div class="form-group"><label class="required">Email</label><input type="email" class="form-control" id="signupEmail"></div>
+      <div class="form-group"><label>Phone</label><input type="text" class="form-control" id="signupPhone"></div>
+      <div class="form-row"><div class="form-group"><label class="required">Password</label><input type="password" class="form-control" id="signupPassword"></div><div class="form-group"><label class="required">Confirm</label><input type="password" class="form-control" id="signupConfirm"></div></div>
+      <button class="btn-order w-full" onclick="handleSignup()"><i class="fas fa-user-plus"></i> Create Account</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD FUNDS MODAL -->
+<div class="modal-overlay" id="addFundsModal">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-header"><h2 class="modal-title">💳 Add Funds to Wallet</h2><button class="modal-close" onclick="closeAddFunds()"><i class="fas fa-times"></i></button></div>
+    <div class="form-group"><label class="required">Amount (Rs)</label><input type="number" class="form-control" id="fundAmount" placeholder="Enter amount" min="1"></div>
+    <div class="form-group"><label class="required">Select Payment Method</label><div class="pm-grid" id="paymentMethodsList"><div class="no-data"><i class="fas fa-spinner fa-spin"></i> Loading...</div></div></div>
+    <div id="selectedPmDetails" class="hidden">
+      <div style="background:rgba(108,99,255,.1);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:14px">
+        <h4 style="margin-bottom:7px;font-size:.92rem">Payment Instructions</h4>
+        <div id="paymentInstructions" style="font-size:.85rem;color:var(--text-secondary);line-height:1.6"></div>
+      </div>
+      <div class="form-group"><label class="required">Transaction ID / Reference</label><input type="text" class="form-control" id="txnId" placeholder="Enter transaction ID after payment"></div>
+    </div>
+    <button class="btn-order w-full" onclick="submitAddFunds()"><i class="fas fa-plus-circle"></i> Submit Fund Request</button>
+  </div>
+</div>
+
+<!-- SERVICE DETAIL MODAL -->
+<div class="modal-overlay" id="serviceDetailModal" onclick="if(event.target===this)closeServiceDetail()">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-header"><h2 class="modal-title">📋 Service Details</h2><button class="modal-close" onclick="closeServiceDetail()"><i class="fas fa-times"></i></button></div>
+    <div id="serviceDetailBody"></div>
+    <button class="btn-order w-full" style="margin-top:18px" id="serviceDetailOrderBtn"><i class="fas fa-bolt"></i> Order This Service</button>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// SUPABASE CONFIG
+// ============================================================
+const SUPABASE_URL = 'https://dfsahgkdpejzkktjdoxu.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_nL5FfClEQHwx6Y_trl5KEQ_R0fA5RQs';
+// ============================================================
+
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ── State ──────────────────────────────────────────────────
+let currentUser = null, currentProfile = null;
+let allServices = [];
+let allPlatforms = [];
+let paymentMethods = [];
+let selectedPm = null;
+let siteSettings = {};
+let rtChannels = [];
+let currency = { code:'PKR', sym:'Rs', rate:1 };
+let currRates = { PKR:1, USD:280, INR:3.3, AUD:183, AED:76, CNY:39, SAR:75 };
+let authReady = false; // FIX: gate to prevent flashing admin state
+
+// Active category filter for order page
+let activeCategory = 'all';
+let servicesCategory = 'All';
+
+// ═══════════════════════════════════════════════════════════
+// PLATFORM ICON CONFIG — Font Awesome brand icons + brand colors
+// ═══════════════════════════════════════════════════════════
+const PLAT_CONFIG = {
+  'TikTok':     { fa:'fab fa-tiktok',      cls:'plat-tiktok',    color:'#69C9D0' },
+  'Instagram':  { fa:'fab fa-instagram',   cls:'plat-instagram', color:'#E4405F' },
+  'Facebook':   { fa:'fab fa-facebook-f',  cls:'plat-facebook',  color:'#1877F2' },
+  'YouTube':    { fa:'fab fa-youtube',     cls:'plat-youtube',   color:'#FF0000' },
+  'Twitter':    { fa:'fab fa-x-twitter',   cls:'plat-twitter',   color:'#1D9BF0' },
+  'X':          { fa:'fab fa-x-twitter',   cls:'plat-twitter',   color:'#1D9BF0' },
+  'X (Twitter)':{ fa:'fab fa-x-twitter',   cls:'plat-twitter',   color:'#1D9BF0' },
+  'Pinterest':  { fa:'fab fa-pinterest-p', cls:'plat-pinterest', color:'#E60023' },
+  'Telegram':   { fa:'fab fa-telegram',    cls:'plat-telegram',  color:'#0088cc' },
+  'WhatsApp':   { fa:'fab fa-whatsapp',    cls:'plat-whatsapp',  color:'#25D366' },
+  'Snapchat':   { fa:'fab fa-snapchat',    cls:'plat-snapchat',  color:'#FFFC00' },
+  'LinkedIn':   { fa:'fab fa-linkedin-in', cls:'plat-linkedin',  color:'#0A66C2' },
+  'Discord':    { fa:'fab fa-discord',     cls:'plat-discord',   color:'#5865F2' },
+  'Spotify':    { fa:'fab fa-spotify',     cls:'plat-spotify',   color:'#1DB954' },
+  'Twitch':     { fa:'fab fa-twitch',      cls:'plat-twitch',    color:'#9146FF' },
+  'Threads':    { fa:'fab fa-threads',     cls:'plat-threads',   color:'#FFFFFF' },
+  'Reddit':     { fa:'fab fa-reddit-alien',cls:'plat-default',   color:'#FF4500' },
+  'SoundCloud': { fa:'fab fa-soundcloud',  cls:'plat-default',   color:'#FF5500' },
+  'Vimeo':      { fa:'fab fa-vimeo-v',     cls:'plat-default',   color:'#1AB7EA' },
+  'Google':     { fa:'fab fa-google',      cls:'plat-default',   color:'#4285F4' },
+  'CapCut':     { fa:'fas fa-film',        cls:'plat-default',   color:'#A0A0FF' },
+  'capcut':     { fa:'fas fa-film',        cls:'plat-default',   color:'#A0A0FF' },
+  'ChatGPT':    { fa:'fas fa-robot',       cls:'plat-default',   color:'#74AA9C' },
+  'Chat GPT':   { fa:'fas fa-robot',       cls:'plat-default',   color:'#74AA9C' },
+  'Canva':      { fa:'fas fa-palette',     cls:'plat-default',   color:'#00C4CC' },
+  'Netflix':    { fa:'fas fa-play-circle', cls:'plat-default',   color:'#E50914' },
+  'PUBG':       { fa:'fas fa-gamepad',     cls:'plat-default',   color:'#F5A623' },
+  'Free Fire':  { fa:'fas fa-fire',        cls:'plat-default',   color:'#FF6B1A' },
+};
+const PLAT_DEFAULT = { fa:'fas fa-globe', cls:'plat-default', color:'#6c63ff' };
+
+function getPlatConf(name) {
+  return PLAT_CONFIG[name] || PLAT_DEFAULT;
+}
+
+// ═══════════════════════════════════════════════════════════
+// SERVICE CATEGORY DETECTION
+// Keywords → category name + icon
+// ═══════════════════════════════════════════════════════════
+const CAT_RULES = [
+  { keys:['follower','fans'],        name:'Followers',    icon:'👥' },
+  { keys:['like','heart','reaction'],name:'Likes',        icon:'❤️' },
+  { keys:['view','reel','impressi'], name:'Views',        icon:'👁️' },
+  { keys:['comment'],                name:'Comments',     icon:'💬' },
+  { keys:['share','repost','retweet'],name:'Shares',      icon:'🔁' },
+  { keys:['watch time','watchtime','minutes','hours watched'], name:'Watch Time', icon:'⏱️' },
+  { keys:['subscriber','subs'],      name:'Subscribers',  icon:'🔔' },
+  { keys:['member','join'],          name:'Members',      icon:'👑' },
+  { keys:['monetiz','earn','revenue'],name:'Monetization',icon:'💰' },
+  { keys:['premium','subscription','vip'], name:'Premium',icon:'⭐' },
+  { keys:['stream','live'],          name:'Live Stream',  icon:'🔴' },
+  { keys:['play','story','stories'], name:'Plays / Stories', icon:'▶️' },
+  { keys:['account','profile'],      name:'Accounts',     icon:'🆔' },
+  { keys:['boost','promo'],          name:'Boost',        icon:'🚀' },
+];
+
+function detectCategory(serviceName) {
+  const lower = (serviceName || '').toLowerCase();
+  for (const rule of CAT_RULES) {
+    if (rule.keys.some(k => lower.includes(k))) return rule;
+  }
+  return { name:'Other', icon:'🔧' };
+}
+
+function getCategoriesForPlatform(platformName) {
+  const svcs = platformName === 'all'
+    ? allServices
+    : allServices.filter(s => s.platform === platformName);
+  const seen = new Set();
+  const cats = [{ name:'All', icon:'🌐' }];
+  for (const s of svcs) {
+    const cat = detectCategory(s.service_name);
+    if (!seen.has(cat.name)) { seen.add(cat.name); cats.push(cat); }
+  }
+  return cats;
+}
+
+// ═══════════════════════════════════════════════════════════
+// CURRENCY
+// ═══════════════════════════════════════════════════════════
+function toggleCurrDd(){ document.getElementById('currDd').classList.toggle('open'); }
+function setCurr(code,sym,rate){
+  const r = siteSettings['rate_'+code] ? parseFloat(siteSettings['rate_'+code]) : (currRates[code]||1);
+  currency = { code, sym, rate: code==='PKR'?1:(1/r) };
+  document.getElementById('currLabel').textContent = code;
+  document.getElementById('currDd').classList.remove('open');
+  document.querySelectorAll('.curr-opt').forEach(o=>o.classList.remove('active'));
+  event?.target?.classList.add('active');
+  calcPrice(); updateWalletUI();
+}
+function fmt(pkr){
+  const v = currency.code==='PKR' ? pkr : pkr*currency.rate;
+  return currency.sym + v.toFixed(2);
+}
+function updateWalletUI(){
+  const b = parseFloat(currentProfile?.wallet_balance||0);
+  document.getElementById('walletDisplay').textContent = fmt(b);
+  document.getElementById('navWallet').textContent = fmt(b);
+  const el = document.getElementById('walletPKR');
+  if(el) el.textContent = currency.code!=='PKR' ? '(Rs '+b.toFixed(2)+' PKR)' : '';
+}
+document.addEventListener('click',e=>{
+  if(!e.target.closest('#currencyWrapper')) document.getElementById('currDd').classList.remove('open');
+});
+
+// ── Sync badge ─────────────────────────────────────────────
+function syncShow(state,txt){
+  const el=document.getElementById('syncBadge');
+  el.className='show'+(state?' '+state:'');
+  document.getElementById('syncText').textContent=txt||'Live';
+  if(state!=='syncing') setTimeout(()=>el.classList.remove('show'),2800);
+}
+
+// ═══════════════════════════════════════════════════════════
+// INIT — auth resolves FIRST, then UI updates
+// ═══════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', async () => {
+  createParticles();
+
+  // FIX: Hide admin link on every load until an 'admin' role is confirmed from the DB.
+  document.getElementById('sideAdminLink')?.classList.add('hidden');
+
+  // Restore theme preference
+  const t = localStorage.getItem('theme');
+  if(t){ document.documentElement.setAttribute('data-theme',t); if(t==='light') document.getElementById('themeIcon').className='fas fa-sun'; }
+
+  // FIX: Wait for Supabase auth to fully resolve BEFORE hiding the loading screen
+  // This prevents the brief flash of admin UI on reload
+  const { data:{ session } } = await sb.auth.getSession();
+
+  if(session){
+    currentUser = session.user;
+    await loadProfile();      // must complete before updateNavUser
+    updateNavUser();
+  } else {
+    updateNavGuest();         // explicitly set guest state
+  }
+
+  authReady = true;
+
+  // Load data in parallel
+  syncShow('syncing','Loading...');
+  await Promise.all([loadSettings(), loadServicesDB(), loadPlatformsDB(), loadPaymentMethods()]);
+  syncShow('','Synced');
+
+  initCounters();
+  setupRealtime();
+
+  // Hide loading screen only after auth & initial data are ready
+  const l = document.getElementById('loadingScreen');
+  if(l){ l.classList.add('fade-out'); setTimeout(()=>l.remove(),500); }
+
+  sb.auth.onAuthStateChange(async(ev,sess)=>{
+    if(ev==='SIGNED_IN'){
+      currentUser = sess.user;
+      await loadProfile();
+      updateNavUser();
+      setupRealtime();
+    } else if(ev==='SIGNED_OUT'){
+      currentUser = null; currentProfile = null;
+      updateNavGuest();
+    }
+  });
+
+  const ref = new URLSearchParams(location.search).get('ref');
+  if(ref) sessionStorage.setItem('referral_code',ref);
+});
+
+// ── REALTIME ───────────────────────────────────────────────
+function setupRealtime(){
+  rtChannels.forEach(c=>sb.removeChannel(c));
+  rtChannels=[];
+
+  const svcCh=sb.channel('svc-live').on('postgres_changes',{event:'*',schema:'public',table:'services'},p=>{
+    syncShow('syncing','Updating...');
+    const e=p.eventType;
+    if(e==='INSERT'){ if(p.new?.is_active!==false) allServices.push(p.new); }
+    else if(e==='UPDATE'){
+      const i=allServices.findIndex(s=>s.id===p.new.id);
+      if(i!==-1){ if(p.new.is_active===false) allServices.splice(i,1); else allServices[i]=p.new; }
+      else if(p.new.is_active!==false) allServices.push(p.new);
+    } else if(e==='DELETE'){ allServices=allServices.filter(s=>s.id!==p.old.id); }
+    rebuildServiceUIs(); syncShow('','Services updated');
+  }).subscribe();
+
+  const platCh=sb.channel('plat-live').on('postgres_changes',{event:'*',schema:'public',table:'platforms'},p=>{
+    syncShow('syncing','Updating...');
+    const e=p.eventType;
+    if(e==='INSERT'){ if(p.new?.is_active!==false) allPlatforms.push(p.new); }
+    else if(e==='UPDATE'){
+      const i=allPlatforms.findIndex(x=>x.id===p.new.id);
+      if(i!==-1){ if(p.new.is_active===false) allPlatforms.splice(i,1); else allPlatforms[i]=p.new; }
+      else if(p.new.is_active!==false) allPlatforms.push(p.new);
+    } else if(e==='DELETE'){ allPlatforms=allPlatforms.filter(x=>x.id!==p.old.id); }
+    rebuildPlatformUIs(); syncShow('','Platforms updated');
+  }).subscribe();
+
+  const stgCh=sb.channel('stg-live').on('postgres_changes',{event:'*',schema:'public',table:'site_settings'},async()=>{
+    await loadSettings(); applyAffVisibility(); applyCommDisplay(); syncShow('','Settings updated');
+  }).subscribe();
+
+  const pmCh=sb.channel('pm-live').on('postgres_changes',{event:'*',schema:'public',table:'payment_methods'},async()=>{
+    await loadPaymentMethods(); syncShow('','Payment methods updated');
+  }).subscribe();
+
+  rtChannels.push(svcCh,platCh,stgCh,pmCh);
+
+  if(currentUser){
+    const wCh=sb.channel('wallet-'+currentUser.id).on('postgres_changes',{event:'UPDATE',schema:'public',table:'wallets',filter:`user_id=eq.${currentUser.id}`},p=>{
+      if(currentProfile){ currentProfile.wallet_balance=p.new.balance; updateWalletUI(); syncShow('','Wallet updated'); }
+    }).subscribe();
+    rtChannels.push(wCh);
+  }
+}
+
+// ── Rebuild UIs after realtime ─────────────────────────────
+function rebuildServiceUIs(){
+  buildPlatformFilterBtns();
+  buildPlatformSelect();
+  buildServicesPlatformFilter();
+  buildServicesCategoryBtns();
+  if(document.getElementById('page-services').classList.contains('active')) filterServicesPage();
+  const upd=document.getElementById('servicesLastUpdated');
+  if(upd) upd.textContent='✓ Updated '+new Date().toLocaleTimeString();
+  const plat=document.getElementById('platformSelect').value;
+  if(plat) loadServicesByPlatform();
+}
+function rebuildPlatformUIs(){
+  buildPlatformFilterBtns();
+  buildPlatformSelect();
+  buildServicesPlatformFilter();
+  buildHomePlatformGrid();
+}
+
+// ── Data loaders ──────────────────────────────────────────
+async function loadSettings(){
+  try{
+    const {data}=await sb.from('site_settings').select('key,value');
+    if(data){ data.forEach(r=>{siteSettings[r.key]=r.value;}); }
+    ['USD','INR','AUD','AED','CNY','SAR'].forEach(c=>{ if(siteSettings['rate_'+c]) currRates[c]=parseFloat(siteSettings['rate_'+c]); });
+  }catch(e){console.error('settings',e);}
+}
+async function loadServicesDB(){
+  try{
+    // FIX: Supabase caps each request at 1000 rows. Page through with .range() to load ALL services.
+    const PAGE=1000; let start=0; let acc=[];
+    while(true){
+      const {data,error}=await sb.from('services').select('*').eq('is_active',true).order('platform').order('id').range(start,start+PAGE-1);
+      if(error) throw error;
+      if(!data||data.length===0) break;
+      acc=acc.concat(data);
+      if(data.length<PAGE) break;
+      start+=PAGE;
+    }
+    allServices=acc;
+    rebuildServiceUIs();
+  }catch(e){ console.error('services',e); showToast('Could not load services','error'); }
+}
+async function loadPlatformsDB(){
+  try{
+    const {data,error}=await sb.from('platforms').select('*').eq('is_active',true).order('name');
+    if(error) throw error;
+    allPlatforms=data||[];
+    rebuildPlatformUIs();
+  }catch(e){
+    allPlatforms=[...new Set(allServices.map(s=>s.platform).filter(Boolean))].map(n=>({name:n}));
+    rebuildPlatformUIs();
+  }
+}
+async function loadPaymentMethods(){
+  try{ const {data}=await sb.from('payment_methods').select('*').eq('is_active',true).order('name'); paymentMethods=data||[]; }
+  catch(e){ paymentMethods=[]; }
+}
+
+// ═══════════════════════════════════════════════════════════
+// PLATFORM UI BUILDERS — with real brand icons
+// ═══════════════════════════════════════════════════════════
+function getPlatforms(){
+  return allPlatforms.length>0
+    ? allPlatforms
+    : [...new Set(allServices.map(s=>s.platform).filter(Boolean))].map(n=>({name:n}));
+}
+
+function buildPlatformFilterBtns(){
+  const c=document.getElementById('platformFilterBtns');
+  if(!c) return;
+  const cur=c.querySelector('.plat-btn.active')?.dataset?.plat||'all';
+  const plats=getPlatforms();
+  let html=`<button class="plat-btn${cur==='all'?' active':''}" data-plat="all" onclick="filterByPlatform('all',this)"><i class="fas fa-globe"></i> All</button>`;
+  plats.forEach(p=>{
+    const conf=getPlatConf(p.name);
+    html+=`<button class="plat-btn${cur===p.name?' active':''}" data-plat="${p.name}" onclick="filterByPlatform('${p.name}',this)" style="color:${conf.color};border-color:${conf.color}22"><i class="${conf.fa}"></i> ${p.name}</button>`;
+  });
+  c.innerHTML=html;
+}
+
+function buildPlatformSelect(){
+  const s=document.getElementById('platformSelect'); if(!s) return;
+  const cur=s.value;
+  const plats=getPlatforms();
+  s.innerHTML='<option value="">Select Platform</option>';
+  plats.forEach(p=>s.innerHTML+=`<option value="${p.name}"${p.name===cur?' selected':''}>${p.name}</option>`);
+}
+
+function buildServicesPlatformFilter(){
+  const s=document.getElementById('servicesPlatformFilter'); if(!s) return;
+  const cur=s.value;
+  const plats=getPlatforms();
+  s.innerHTML='<option value="">All Platforms</option>';
+  plats.forEach(p=>s.innerHTML+=`<option value="${p.name}"${p.name===cur?' selected':''}>${p.name}</option>`);
+}
+
+function buildHomePlatformGrid(){
+  const g=document.getElementById('homePlatformsGrid'); if(!g) return;
+  const plats=getPlatforms();
+  if(!plats.length){ g.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:38px;color:var(--text-secondary)">No platforms configured yet.</div>'; return; }
+  g.innerHTML=plats.map(p=>{
+    const conf=getPlatConf(p.name);
+    const cnt=allServices.filter(s=>s.platform===p.name).length;
+    return `<div class="platform-card ${conf.cls}" onclick="filterByPlatform('${p.name}',null);navigate('order')" title="${p.name}">
+      <div class="plat-icon-wrap"><i class="${conf.fa}" style="color:${conf.color};font-size:1.9rem"></i></div>
+      <div class="platform-name">${p.name}</div>
+      ${cnt?`<div class="platform-desc">${cnt} service${cnt!==1?'s':''}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+// FIX: build category chips below platform filter
+function buildCategoryFilterBtns(platformName){
+  const wrap=document.getElementById('serviceCategoriesWrap');
+  const c=document.getElementById('categoryFilterBtns');
+  if(!wrap||!c) return;
+  if(!platformName || platformName==='all'){ wrap.classList.remove('show'); activeCategory='all'; return; }
+  const cats=getCategoriesForPlatform(platformName);
+  if(cats.length<=1){ wrap.classList.remove('show'); activeCategory='all'; return; }
+  activeCategory='all';
+  c.innerHTML=cats.map(cat=>`<button class="cat-btn${cat.name==='All'?' active':''}" onclick="filterByCategory('${cat.name}',this)">${cat.icon} ${cat.name}</button>`).join('');
+  wrap.classList.add('show');
+}
+
+function filterByCategory(catName, btn){
+  activeCategory=catName;
+  document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  // Update the service select dropdown to show only matching services
+  const plat=document.getElementById('platformSelect').value;
+  loadServicesByPlatform();
+}
+
+function applyAffVisibility(){
+  const ce=siteSettings['commission_program_active']!=='false';
+  const se=siteSettings['salary_program_active']!=='false';
+  const vis=ce||se;
+  document.getElementById('navAffLink').style.display=vis?'':'none';
+  document.getElementById('sideAffLink').style.display=vis?'':'none';
+  document.getElementById('commOption').style.display=ce?'':'none';
+  document.getElementById('salaryOption').style.display=se?'':'none';
+}
+function applyCommDisplay(){
+  const r=siteSettings['affiliate_commission_rate']||'20';
+  const m=siteSettings['affiliate_min_payout']||'50';
+  const re=document.getElementById('commRate'); const me=document.getElementById('minPayout');
+  if(re) re.textContent=r+'%'; if(me) me.textContent='$'+m;
+}
+
+// ── Particles ──────────────────────────────────────────────
+function createParticles(){
+  const c=document.getElementById('heroParticles'); if(!c) return;
+  for(let i=0;i<14;i++){
+    const p=document.createElement('div'); p.className='particle';
+    p.style.cssText=`left:${Math.random()*100}%;width:${Math.random()*8+4}px;height:${Math.random()*8+4}px;animation-duration:${Math.random()*14+9}s;animation-delay:${Math.random()*9}s;background:${Math.random()>.5?'var(--accent)':'var(--accent2)'};`;
+    c.appendChild(p);
+  }
+}
+
+// ── Counter animation ──────────────────────────────────────
+function initCounters(){
+  const obs=new IntersectionObserver(entries=>{ entries.forEach(entry=>{ if(entry.isIntersecting){ const el=entry.target,t=parseInt(el.dataset.target); let c=0; const step=t/80; const ti=setInterval(()=>{ c=Math.min(c+step,t); el.textContent=c>=1000?(c/1000).toFixed(c>=10000?0:1)+'K+':Math.floor(c)+(t===99?'%':'+'); if(c>=t)clearInterval(ti); },20); obs.unobserve(el); } }); });
+  document.querySelectorAll('.stat-num[data-target]').forEach(c=>obs.observe(c));
+}
+
+// ── Navigation ─────────────────────────────────────────────
+function navigate(pg){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+pg)?.classList.add('active');
+  window.scrollTo(0,0);
+  if(pg==='dashboard'){ if(!currentUser){openAuth('login');return;} loadDashboard(); }
+  if(pg==='services') filterServicesPage();
+  if(pg==='affiliate'){ loadSettings().then(()=>{applyAffVisibility();applyCommDisplay();checkAffStatus();}); }
+}
+function toggleSideMenu(){ document.getElementById('sideMenu').classList.toggle('open'); document.getElementById('sideOverlay').classList.toggle('open'); }
+function closeSideMenu(){ document.getElementById('sideMenu').classList.remove('open'); document.getElementById('sideOverlay').classList.remove('open'); }
+function toggleTheme(){ const d=document.documentElement.getAttribute('data-theme')==='dark'; document.documentElement.setAttribute('data-theme',d?'light':'dark'); document.getElementById('themeIcon').className=d?'fas fa-sun':'fas fa-moon'; localStorage.setItem('theme',d?'light':'dark'); }
+
+// ── Auth UI ────────────────────────────────────────────────
+function openAuth(t='login'){ document.getElementById('authModal').classList.add('open'); switchAuthTab(t); }
+function closeAuth(){ document.getElementById('authModal').classList.remove('open'); }
+function toggleDd(){ document.getElementById('userDd').classList.toggle('open'); }
+function closeDd(){ document.getElementById('userDd').classList.remove('open'); }
+document.addEventListener('click',e=>{ if(!e.target.closest('#userProfile')) closeDd(); });
+function switchAuthTab(t){
+  document.getElementById('loginForm').classList.toggle('hidden',t!=='login');
+  document.getElementById('signupForm').classList.toggle('hidden',t!=='signup');
+  document.getElementById('forgotForm').classList.add('hidden');
+  document.getElementById('loginTab').classList.toggle('active',t==='login');
+  document.getElementById('signupTab').classList.toggle('active',t==='signup');
+  document.getElementById('authModalTitle').textContent=t==='login'?'Welcome Back':'Create Account';
+}
+function showForgotPw(){ document.getElementById('loginForm').classList.add('hidden'); document.getElementById('forgotForm').classList.remove('hidden'); }
+function showLoginForm(){ document.getElementById('forgotForm').classList.add('hidden'); document.getElementById('loginForm').classList.remove('hidden'); }
+
+// ── Auth handlers ──────────────────────────────────────────
+async function handleLogin(){
+  const em=document.getElementById('loginEmail').value.trim(), pw=document.getElementById('loginPassword').value;
+  if(!em||!pw){showToast('Please fill all fields','warning');return;}
+  const {error}=await sb.auth.signInWithPassword({email:em,password:pw});
+  if(error){showToast(error.message,'error');return;}
+  showToast('Login successful! Welcome back 👋','success'); closeAuth();
+}
+async function handleSignup(){
+  const name=document.getElementById('signupName').value.trim(), uname=document.getElementById('signupUsername').value.trim(),
+    em=document.getElementById('signupEmail').value.trim(), ph=document.getElementById('signupPhone').value.trim(),
+    pw=document.getElementById('signupPassword').value, cp=document.getElementById('signupConfirm').value;
+  if(!name||!uname||!em||!pw){showToast('Please fill all required fields','warning');return;}
+  if(pw!==cp){showToast('Passwords do not match','error');return;}
+  if(pw.length<6){showToast('Password must be 6+ characters','warning');return;}
+  const {error}=await sb.auth.signUp({email:em,password:pw,options:{data:{full_name:name,username:uname,phone:ph}}});
+  if(error){showToast(error.message,'error');return;}
+  showToast('Account created! Please verify your email.','success'); closeAuth();
+}
+async function handleForgotPw(){
+  const em=document.getElementById('forgotEmail').value.trim();
+  if(!em){showToast('Please enter your email','warning');return;}
+  const {error}=await sb.auth.resetPasswordForEmail(em,{redirectTo:location.href});
+  if(error){showToast(error.message,'error');return;}
+  showToast('Reset email sent! Check your inbox.','success'); showLoginForm();
+}
+async function handleLogout(){
+  rtChannels.forEach(c=>sb.removeChannel(c)); rtChannels=[];
+  await sb.auth.signOut(); navigate('home'); showToast('Logged out','info');
+}
+
+// ── Profile ────────────────────────────────────────────────
+async function loadProfile(){
+  if(!currentUser) return;
+  try{
+    const [pr,wr]=await Promise.all([
+      sb.from('profiles').select('*').eq('id',currentUser.id).single(),
+      sb.from('wallets').select('balance').eq('user_id',currentUser.id).single()
+    ]);
+    if(pr.error){ console.error('profile load failed',pr.error); currentProfile=null; }
+    else if(pr.data){ currentProfile=pr.data; }
+    if(wr.data&&currentProfile) currentProfile.wallet_balance=wr.data.balance;
+  }catch(e){ console.error('profile',e); currentProfile=null; }
+}
+
+// FIX: updateNavUser only shows admin link if profile.role === 'admin'
+// Never call this before loadProfile() completes
+function updateNavUser(){
+  document.getElementById('guestButtons').classList.add('hidden');
+  document.getElementById('userProfile').classList.remove('hidden');
+  document.getElementById('sideLogout').classList.remove('hidden');
+  const n=currentProfile?.full_name||currentProfile?.username||currentUser?.email?.split('@')[0]||'User';
+  document.getElementById('navUsername').textContent=n;
+  document.getElementById('navAvatar').textContent=n.charAt(0).toUpperCase();
+  updateWalletUI();
+  // FIX: Hide first, then reveal ONLY when role is explicitly 'admin' (no stale/ambiguous state).
+  const adminEl=document.getElementById('sideAdminLink');
+  adminEl.classList.add('hidden');
+  if(currentProfile && currentProfile.role==='admin'){
+    adminEl.classList.remove('hidden');
+  }
+}
+
+function updateNavGuest(){
+  document.getElementById('guestButtons').classList.remove('hidden');
+  document.getElementById('userProfile').classList.add('hidden');
+  document.getElementById('sideLogout').classList.add('hidden');
+  // FIX: Always hide admin link for guests
+  document.getElementById('sideAdminLink').classList.add('hidden');
+}
+
+// ═══════════════════════════════════════════════════════════
+// ORDER PAGE
+// ═══════════════════════════════════════════════════════════
+function filterByPlatform(plat, btn){
+  document.querySelectorAll('.plat-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  const s=document.getElementById('platformSelect'); if(!s) return;
+  activeCategory='all'; // reset category
+  if(plat==='all'){
+    s.value='';
+    buildCategoryFilterBtns(null);
+    loadServicesByPlatform();
+    return;
+  }
+  s.value=plat;
+  buildCategoryFilterBtns(plat); // FIX: show category chips
+  loadServicesByPlatform();
+}
+
+// FIX: separate handler for the <select> dropdown (also triggers category build)
+function onPlatformSelectChange(){
+  const plat=document.getElementById('platformSelect').value;
+  activeCategory='all';
+  buildCategoryFilterBtns(plat);
+  // sync the platform filter button too
+  document.querySelectorAll('.plat-btn').forEach(b=>{
+    b.classList.toggle('active', b.dataset.plat===(plat||'all'));
+  });
+  loadServicesByPlatform();
+}
+
+function loadServicesByPlatform(){
+  const plat=document.getElementById('platformSelect').value;
+  const ss=document.getElementById('serviceSelect');
+  ss.innerHTML='<option value="">Select Service</option>';
+  document.getElementById('serviceDetails').textContent='';
+  clearServiceDesc();
+  clearExtraFields();
+
+  if(!plat) return;
+
+  // Filter by platform AND active category
+  let svcs=allServices.filter(s=>s.platform===plat);
+  if(activeCategory && activeCategory!=='all'){
+    svcs=svcs.filter(s=>detectCategory(s.service_name).name===activeCategory);
+  }
+
+  if(!svcs.length){ ss.innerHTML='<option value="">No services in this category</option>'; return; }
+  svcs.forEach(s=>ss.innerHTML+=`<option value="${s.id}">[${s.service_id||''}] ${s.service_name||'Service'}</option>`);
+}
+
+function onServiceChange(){
+  const id=document.getElementById('serviceSelect').value;
+  clearExtraFields();
+  clearServiceDesc();
+  if(!id) return;
+  const s=allServices.find(x=>x.id===id); if(!s) return;
+
+  // Rate details row
+  const rate=s.per_1k?`${fmt(s.rate)}/1K`:s.is_account?`${fmt(s.rate)}/unit`:`${fmt(s.rate)} fixed`;
+  document.getElementById('serviceDetails').textContent=`Rate: ${rate} · Min: ${s.min_qty} · Max: ${(s.max_qty||0).toLocaleString()} · ${s.delivery_time||'1-24h'}`;
+
+  // FIX: Service description — visible styled box above the link input
+  if(s.description && s.description.trim()){
+    const box=document.getElementById('serviceDescBox');
+    box.innerHTML=`<strong>📝 Note:</strong> ${s.description}`;
+    box.classList.remove('hidden');
+    document.getElementById('serviceDescSpacer').classList.remove('hidden');
+  }
+
+  if(s.require_link===false) document.getElementById('linkBox').classList.add('hidden');
+  if(s.require_email) document.getElementById('emailBox').classList.remove('hidden');
+  if(s.target_country) document.getElementById('countryBox').classList.remove('hidden');
+  if(s.custom_comments) document.getElementById('customCommentsBox').classList.remove('hidden');
+  calcPrice();
+}
+
+function clearServiceDesc(){
+  document.getElementById('serviceDescBox').classList.add('hidden');
+  document.getElementById('serviceDescSpacer').classList.add('hidden');
+  document.getElementById('serviceDescBox').innerHTML='';
+}
+
+function clearExtraFields(){
+  document.getElementById('linkBox').classList.remove('hidden');
+  ['emailBox','countryBox','customCommentsBox'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+  document.getElementById('qtyError').style.display='none';
+}
+
+function calcPrice(){
+  const id=document.getElementById('serviceSelect').value, qty=parseInt(document.getElementById('quantityInput').value)||0;
+  const ps=document.getElementById('priceSummary'), pb=document.getElementById('priceBreakdown'), ta=document.getElementById('totalAmount');
+  if(!id||!qty){ps.textContent=fmt(0);pb.textContent='Select a service to see pricing';ta.value='';delete ta.dataset.pkr;return;}
+  const s=allServices.find(x=>x.id===id); if(!s) return;
+  const qe=document.getElementById('qtyError');
+  if(qty<s.min_qty){qe.textContent=`Minimum quantity: ${s.min_qty}`;qe.style.display='block';ps.textContent=fmt(0);return;}
+  if(s.max_qty&&qty>s.max_qty){qe.textContent=`Maximum quantity: ${s.max_qty.toLocaleString()}`;qe.style.display='block';ps.textContent=fmt(0);return;}
+  qe.style.display='none';
+  let pkr=0,bd='';
+  if(s.per_1k){pkr=(s.rate/1000)*qty;bd=`${fmt(s.rate)}/1K × ${qty.toLocaleString()} = ${fmt(pkr)}`;}
+  else if(s.is_account){pkr=s.rate*qty;bd=`${fmt(s.rate)}/unit × ${qty} = ${fmt(pkr)}`;}
+  else{pkr=s.rate;bd=`Fixed: ${fmt(pkr)}`;}
+  ps.textContent=fmt(pkr); pb.textContent=bd; ta.value=fmt(pkr); ta.dataset.pkr=pkr;
+  if(s.custom_comments){document.getElementById('customCommentsLabel').textContent=`Custom Comments (exactly ${qty})`;updateCommentCount();}
+}
+function updateCommentCount(){
+  const qty=parseInt(document.getElementById('quantityInput').value)||0;
+  const lines=document.getElementById('customCommentsInput').value.split('\n').filter(l=>l.trim()).length;
+  const el=document.getElementById('commentCountDisplay');
+  el.textContent=`${lines} / ${qty} comments`;
+  el.style.color=lines===qty?'var(--success)':(lines>qty?'var(--danger)':'var(--text-secondary)');
+}
+function setQty(v){document.getElementById('quantityInput').value=v;calcPrice();}
+
+// ── Search ─────────────────────────────────────────────────
+function performSearch(){
+  const kw=document.getElementById('searchKeyword').value.toLowerCase().trim();
+  const re=document.getElementById('searchResults');
+  if(!kw){re.innerHTML='';return;}
+  const res=allServices.filter(s=>s.service_name?.toLowerCase().includes(kw)||s.platform?.toLowerCase().includes(kw)||s.service_id?.toString().includes(kw)||s.rate?.toString().includes(kw)).slice(0,8);
+  if(!res.length){re.innerHTML='<p style="padding:9px;color:var(--text-secondary);font-size:.83rem">No results found</p>';return;}
+  re.innerHTML=res.map(s=>`<div class="search-result-item" onclick="pickService('${s.platform}','${s.id}')">
+    <div><div class="sri-name">${s.service_name}</div><div class="sri-meta">${s.platform} · ID: ${s.service_id||s.id} · Min: ${s.min_qty}</div></div>
+    <div class="sri-price">${fmt(s.rate)}${s.per_1k?'/1K':''}</div>
+  </div>`).join('');
+}
+function pickService(plat,id){
+  document.getElementById('searchResults').innerHTML='';
+  document.getElementById('searchKeyword').value='';
+  navigate('order');
+  setTimeout(()=>{
+    activeCategory='all';
+    document.getElementById('platformSelect').value=plat;
+    buildCategoryFilterBtns(plat);
+    document.querySelectorAll('.plat-btn').forEach(b=>b.classList.toggle('active',b.dataset.plat===plat));
+    loadServicesByPlatform();
+    setTimeout(()=>{document.getElementById('serviceSelect').value=id;onServiceChange();},100);
+  },100);
+}
+
+// ── Place order ────────────────────────────────────────────
+async function placeOrder(){
+  if(!currentUser){openAuth('login');showToast('Please login to place an order','warning');return;}
+  const id=document.getElementById('serviceSelect').value, plat=document.getElementById('platformSelect').value;
+  const qty=parseInt(document.getElementById('quantityInput').value);
+  const link=document.getElementById('linkInput').value.trim(), em=document.getElementById('emailInput').value.trim();
+  const country=document.getElementById('countrySelect').value, cc=document.getElementById('customCommentsInput').value.trim();
+  const pkr=parseFloat(document.getElementById('totalAmount').dataset.pkr)||0;
+  if(!id||!plat){showToast('Select platform & service','warning');return;}
+  if(!qty){showToast('Enter quantity','warning');return;}
+  const s=allServices.find(x=>x.id===id);
+  if(!s){showToast('Service not found — please refresh','warning');loadServicesDB();return;}
+  if(s.require_link!==false&&!link){showToast('Enter the link','warning');return;}
+  if(s.require_email&&!em){showToast('Enter your email','warning');return;}
+  if(s.target_country&&!country){showToast('Select target country','warning');return;}
+  if(s.custom_comments){const lines=cc.split('\n').filter(l=>l.trim());if(lines.length!==qty){showToast(`Enter exactly ${qty} comments`,'warning');return;}}
+  if(!pkr){showToast('Could not calculate price','error');return;}
+  try{
+    const {data,error}=await sb.rpc('place_order',{p_service_id:id,p_platform:plat,p_service_name:s.service_name,p_quantity:qty,p_amount:pkr,p_link:link||null,p_email_address:em||null,p_target_country:country||null,p_custom_comments:cc||null});
+    if(error) throw error;
+    if(!data.success) throw new Error(data.error||'Order failed');
+    showToast('Order placed successfully! 🎉','success'); clearOrderForm();
+    await loadProfile(); updateNavUser();
+  }catch(err){
+    if(err.message?.includes('Insufficient')){showToast('Insufficient balance. Please add funds.','error');openAddFunds();}
+    else showToast(err.message||'Order failed','error');
+  }
+}
+function clearOrderForm(){
+  document.getElementById('platformSelect').value='';
+  document.getElementById('serviceSelect').innerHTML='<option value="">Select Service</option>';
+  ['quantityInput','linkInput','emailInput','customCommentsInput'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('totalAmount').value=''; delete document.getElementById('totalAmount').dataset.pkr;
+  document.getElementById('countrySelect').value='';
+  document.getElementById('priceSummary').textContent=fmt(0);
+  document.getElementById('priceBreakdown').textContent='Select a service to see pricing';
+  document.getElementById('serviceDetails').textContent='';
+  clearServiceDesc(); clearExtraFields();
+  buildCategoryFilterBtns(null);
+  activeCategory='all';
+  document.querySelectorAll('.plat-btn').forEach(b=>b.classList.toggle('active',b.dataset.plat==='all'));
+}
+
+// ── Services page ──────────────────────────────────────────
+function platBadge(name){
+  const pc=getPlatConf(name);
+  return `<span class="sc-plat" style="border-color:${pc.color}40"><i class="${pc.fa}" style="color:${pc.color}"></i> ${name||'—'}</span>`;
+}
+function buildServicesCategoryBtns(){
+  const wrap=document.getElementById('servicesCategoryWrap');
+  if(!wrap) return;
+  const plat=document.getElementById('servicesPlatformFilter')?.value||'';
+  const cats=getCategoriesForPlatform(plat||'all');
+  if(cats.length<=1){ wrap.innerHTML=''; servicesCategory='All'; return; }
+  if(!cats.some(c=>c.name===servicesCategory)) servicesCategory='All';
+  wrap.innerHTML=cats.map(c=>`<button class="cat-btn${c.name===servicesCategory?' active':''}" onclick="filterServicesByCategory('${c.name}',this)">${c.icon} ${c.name}</button>`).join('');
+}
+function filterServicesByCategory(name,btn){
+  servicesCategory=name;
+  document.querySelectorAll('#servicesCategoryWrap .cat-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  filterServicesPage();
+}
+function onServicesPlatformChange(){
+  servicesCategory='All';
+  buildServicesCategoryBtns();
+  filterServicesPage();
+}
+function filterServicesPage(){
+  const wrap=document.getElementById('servicesCategoryWrap');
+  if(wrap && !wrap.children.length) buildServicesCategoryBtns();
+  const kw=(document.getElementById('servicesSearch')?.value||'').toLowerCase();
+  const plat=document.getElementById('servicesPlatformFilter')?.value||'';
+  renderServicesTable(allServices.filter(s=>{
+    const mk=!kw||s.service_name?.toLowerCase().includes(kw)||s.platform?.toLowerCase().includes(kw)||s.service_id?.toString().includes(kw);
+    const mp=!plat||s.platform===plat;
+    const mc=servicesCategory==='All'||detectCategory(s.service_name).name===servicesCategory;
+    return mk&&mp&&mc;
+  }));
+}
+function renderServicesTable(svcs){
+  const grid=document.getElementById('servicesGrid');
+  if(!grid) return;
+  if(!svcs.length){grid.innerHTML='<div class="no-data" style="grid-column:1/-1">No services found</div>';return;}
+  grid.innerHTML=svcs.map(s=>`<div class="service-card">
+    <div class="sc-top">${platBadge(s.platform)}<code class="sc-id">#${s.service_id||s.id}</code></div>
+    <div class="sc-name">${s.service_name||''}</div>
+    <div class="sc-cat">${detectCategory(s.service_name).icon} ${detectCategory(s.service_name).name}</div>
+    <div class="sc-rate">${fmt(s.rate)}${s.per_1k?'<span class="sc-unit">/1K</span>':''}</div>
+    <div class="sc-stats"><span><i class="fas fa-arrow-down"></i> Min ${(s.min_qty||0).toLocaleString()}</span><span><i class="fas fa-arrow-up"></i> Max ${(s.max_qty||0).toLocaleString()}</span><span><i class="fas fa-clock"></i> ${s.delivery_time||'1-24h'}</span></div>
+    <div class="sc-actions"><button class="sc-btn sc-detail" onclick="openServiceDetail('${s.id}')"><i class="fas fa-circle-info"></i> Details</button><button class="sc-btn sc-order" onclick="pickService('${s.platform}','${s.id}')"><i class="fas fa-bolt"></i> Order</button></div>
+  </div>`).join('');
+  const u=document.getElementById('servicesLastUpdated');
+  if(u) u.textContent=`✓ ${svcs.length} services · Synced ${new Date().toLocaleTimeString()}`;
+}
+function openServiceDetail(id){
+  const s=allServices.find(x=>String(x.id)===String(id));
+  if(!s){showToast('Service not found','warning');return;}
+  const yn=v=>v?'<span style="color:var(--accent3)">Yes</span>':'<span style="color:var(--text-secondary)">No</span>';
+  const rows=[
+    ['Service ID', s.service_id||s.id],
+    ['Platform', s.platform||'—'],
+    ['Category', s.category||'—'],
+    ['Rate', fmt(s.rate)+(s.per_1k?' / 1K':'')],
+    ['Min order', (s.min_qty||0).toLocaleString()],
+    ['Max order', (s.max_qty||0).toLocaleString()],
+    ['Delivery time', s.delivery_time||'1-24h'],
+    ['Refill', s.service_refill?('Yes'+(s.refill_days?' ('+s.refill_days+' days)':'')):'No'],
+    ['Link required', yn(s.require_link)],
+    ['Email required', yn(s.require_email)]
+  ];
+  document.getElementById('serviceDetailBody').innerHTML=
+    `<div class="sd-name">${s.service_name||''}</div>`+
+    rows.map(r=>`<div class="sd-row"><span class="sd-label">${r[0]}</span><span class="sd-val">${r[1]}</span></div>`).join('');
+  const ob=document.getElementById('serviceDetailOrderBtn');
+  ob.onclick=()=>{closeServiceDetail();pickService(s.platform,s.id);};
+  document.getElementById('serviceDetailModal').classList.add('open');
+}
+function closeServiceDetail(){
+  document.getElementById('serviceDetailModal').classList.remove('open');
+}
+
+// ── Dashboard ──────────────────────────────────────────────
+async function loadDashboard(){
+  if(!currentUser) return;
+  await loadProfile();
+  const n=currentProfile?.full_name||currentProfile?.username||'User';
+  document.getElementById('dashUsername').textContent=n;
+  document.getElementById('dashWallet').textContent=fmt(currentProfile?.wallet_balance||0);
+  const [{count:oc},{count:cc}]=await Promise.all([
+    sb.from('orders').select('*',{count:'exact',head:true}).eq('user_id',currentUser.id),
+    sb.from('orders').select('*',{count:'exact',head:true}).eq('user_id',currentUser.id).eq('status','completed')
+  ]);
+  document.getElementById('dashOrderCount').textContent=oc||0;
+  document.getElementById('dashCompleted').textContent=cc||0;
+  const {data:orders}=await sb.from('orders').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(20);
+  const tb=document.getElementById('ordersTableBody');
+  if(orders?.length) tb.innerHTML=orders.map(o=>`<tr><td><code style="font-size:.78rem">#${String(o.id).slice(-6).toUpperCase()}</code></td><td>${o.service_name}</td><td>${(o.quantity||0).toLocaleString()}</td><td style="color:var(--accent3);font-weight:600">${fmt(parseFloat(o.amount||0))}</td><td><span class="badge ${o.status}">${o.status}</span></td><td style="font-size:.8rem;color:var(--text-secondary)">${new Date(o.created_at).toLocaleDateString()}</td></tr>`).join('');
+  else tb.innerHTML='<tr><td colspan="6" class="no-data"><i class="fas fa-box-open"></i>No orders yet</td></tr>';
+  const {data:aff}=await sb.from('affiliates').select('total_referrals,total_earnings,pending_payout,referral_code').eq('user_id',currentUser.id).eq('type','commission').maybeSingle();
+  if(aff){
+    document.getElementById('dashRefEarnings').textContent='$'+parseFloat(aff.total_earnings||0).toFixed(2);
+    document.getElementById('dashAffRefs').textContent=aff.total_referrals||0;
+    document.getElementById('dashAffEarned').textContent='$'+parseFloat(aff.total_earnings||0).toFixed(2);
+    document.getElementById('dashRefLink').value=`${location.origin}${location.pathname}?ref=${aff.referral_code}`;
+  }
+  document.getElementById('profileName').value=currentProfile?.full_name||'';
+  document.getElementById('profileUsername').value=currentProfile?.username||'';
+  document.getElementById('profileEmail').value=currentProfile?.email||currentUser.email||'';
+  document.getElementById('profilePhone').value=currentProfile?.phone||'';
+  loadTransactions();
+}
+async function loadTransactions(){
+  if(!currentUser) return;
+  const {data:txns}=await sb.from('transactions').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(25);
+  const tb=document.getElementById('transTableBody');
+  if(txns?.length) tb.innerHTML=txns.map(t=>`<tr><td><code style="font-size:.78rem">#${String(t.id).slice(-6).toUpperCase()}</code></td><td>${(t.type||'').replace('_',' ')}</td><td style="color:${t.amount>0?'var(--success)':'var(--danger)'};font-weight:600">${t.amount>0?'+':''}${fmt(Math.abs(t.amount||0))}</td><td>${t.payment_method||'—'}</td><td><span class="badge ${t.status||'completed'}">${t.status||'completed'}</span></td><td style="font-size:.8rem;color:var(--text-secondary)">${new Date(t.created_at).toLocaleDateString()}</td></tr>`).join('');
+  else tb.innerHTML='<tr><td colspan="6" class="no-data"><i class="fas fa-exchange-alt"></i>No transactions yet</td></tr>';
+}
+function switchDashTab(tab,btn){
+  document.querySelectorAll('[id^="dashTab-"]').forEach(t=>t.classList.add('hidden'));
+  document.querySelectorAll('.dash-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('dashTab-'+tab)?.classList.remove('hidden');
+  if(btn) btn.classList.add('active');
+  else{ const m={orders:'📦',transactions:'💳',affiliate:'👥',profile:'👤',tickets:'🎫'}; document.querySelectorAll('.dash-tab').forEach(t=>{if(t.textContent.includes(m[tab])) t.classList.add('active');}); }
+}
+async function updateProfile(){
+  if(!currentUser) return;
+  const {error}=await sb.from('profiles').update({full_name:document.getElementById('profileName').value.trim(),phone:document.getElementById('profilePhone').value.trim()}).eq('id',currentUser.id);
+  if(error){showToast('Update failed: '+error.message,'error');return;}
+  showToast('Profile updated!','success'); await loadProfile(); updateNavUser();
+}
+async function changePassword(){
+  const np=document.getElementById('newPassword').value, cp=document.getElementById('confirmPassword').value;
+  if(!np||np!==cp){showToast('Passwords do not match','error');return;}
+  if(np.length<6){showToast('Password too short','warning');return;}
+  const {error}=await sb.auth.updateUser({password:np});
+  if(error){showToast(error.message,'error');return;}
+  showToast('Password changed!','success');
+  document.getElementById('newPassword').value=''; document.getElementById('confirmPassword').value='';
+}
+function copyDashRefLink(){ navigator.clipboard.writeText(document.getElementById('dashRefLink').value).then(()=>showToast('Copied!','success')); }
+
+// ── Add funds ──────────────────────────────────────────────
+function openAddFunds(){ if(!currentUser){openAuth('login');return;} document.getElementById('addFundsModal').classList.add('open'); renderPMUI(); }
+function closeAddFunds(){ document.getElementById('addFundsModal').classList.remove('open'); selectedPm=null; document.getElementById('selectedPmDetails').classList.add('hidden'); document.getElementById('txnId').value=''; document.getElementById('fundAmount').value=''; }
+function renderPMUI(){
+  const c=document.getElementById('paymentMethodsList');
+  if(!paymentMethods.length){ loadPaymentMethods().then(()=>{ if(!paymentMethods.length) c.innerHTML='<p style="padding:9px;color:var(--text-secondary)">No payment methods. Contact support.</p>'; else renderPMUI(); }); return; }
+  c.innerHTML=paymentMethods.map(pm=>`<div class="pm-card" id="pm-${pm.id}" onclick="selectPM(${pm.id})"><div class="pm-header"><span class="pm-icon">${pm.icon||'💳'}</span><span class="pm-name">${pm.name}</span></div>${pm.instructions?`<div class="pm-details">${pm.instructions}</div>`:''} ${(pm.account||pm.account_number)?`<div class="pm-account">📱 ${pm.account||pm.account_number}</div>`:''}</div>`).join('');
+}
+function selectPM(id){
+  const pm=paymentMethods.find(p=>p.id===id); if(!pm) return;
+  selectedPm=pm;
+  document.querySelectorAll('.pm-card').forEach(c=>c.classList.remove('selected'));
+  document.getElementById('pm-'+id)?.classList.add('selected');
+  document.getElementById('selectedPmDetails').classList.remove('hidden');
+  document.getElementById('paymentInstructions').innerHTML=`<strong>${pm.name}</strong><br>${pm.instructions||'Send amount to account below.'}<br>${(pm.account||pm.account_number)?`<br><strong>Account:</strong> <code style="background:var(--glass);padding:1px 5px;border-radius:3px">${pm.account||pm.account_number}</code>`:''}${pm.account_name?`<br><strong>Name:</strong> ${pm.account_name}`:''}`;
+}
+async function submitAddFunds(){
+  if(!currentUser) return;
+  const amt=parseFloat(document.getElementById('fundAmount').value), tid=document.getElementById('txnId').value.trim();
+  if(!amt||amt<=0){showToast('Enter valid amount','warning');return;}
+  if(!selectedPm){showToast('Select a payment method','warning');return;}
+  if(!tid){showToast('Enter transaction ID','warning');return;}
+  const {error}=await sb.from('transactions').insert({user_id:currentUser.id,type:'deposit',amount:amt,payment_method:selectedPm.name,reference:tid,description:`Add funds via ${selectedPm.name}`,status:'pending'});
+  if(error){showToast('Failed: '+error.message,'error');return;}
+  showToast('Request submitted! Pending admin approval.','success'); closeAddFunds();
+}
+
+// ── Affiliate ──────────────────────────────────────────────
+async function checkAffStatus(){
+  if(!currentUser) return;
+  const {data:ca}=await sb.from('affiliates').select('*').eq('user_id',currentUser.id).eq('type','commission').maybeSingle();
+  if(ca?.status==='active'){
+    document.getElementById('commApplyBtnDiv').classList.add('hidden');
+    document.getElementById('affRegForm').classList.add('hidden');
+    document.getElementById('affDashboard').classList.remove('hidden');
+    document.getElementById('affRefCount').textContent=ca.total_referrals||0;
+    document.getElementById('affEarnings').textContent='$'+parseFloat(ca.total_earnings||0).toFixed(2);
+    document.getElementById('affPending').textContent='$'+parseFloat(ca.pending_payout||0).toFixed(2);
+    document.getElementById('affRefLink').value=`${location.origin}${location.pathname}?ref=${ca.referral_code}`;
+  } else if(ca?.status==='pending'){
+    document.getElementById('commApplyBtnDiv').innerHTML='<div style="text-align:center;padding:18px;background:rgba(255,165,0,.1);border:1px solid rgba(255,165,0,.3);border-radius:var(--radius)"><p style="color:var(--warning);font-weight:600">⏳ Application under review</p></div>';
+  }
+  const {data:sa}=await sb.from('affiliates').select('*').eq('user_id',currentUser.id).eq('type','salary').maybeSingle();
+  if(sa?.status==='active'){ document.getElementById('salaryAppForm').classList.add('hidden'); document.getElementById('empPortalDiv').classList.remove('hidden'); loadEmpHistory(); }
+  else if(sa?.status==='pending'){ document.getElementById('salaryFormFields').innerHTML='<div style="text-align:center;padding:18px;background:rgba(255,165,0,.1);border:1px solid rgba(255,165,0,.3);border-radius:var(--radius)"><p style="color:var(--warning);font-weight:600">⏳ Application under review</p></div>'; }
+}
+function selectAffProgram(t){
+  document.getElementById('commOption').classList.toggle('selected',t==='commission');
+  document.getElementById('salaryOption').classList.toggle('selected',t==='salary');
+  document.getElementById('commProgram').classList.toggle('active',t==='commission');
+  document.getElementById('salaryProgram').classList.toggle('active',t==='salary');
+}
+function showAffiliateForm(){ if(!currentUser){openAuth('login');return;} document.getElementById('commApplyBtnDiv').classList.add('hidden'); document.getElementById('affRegForm').classList.remove('hidden'); document.getElementById('affEmail').value=currentUser.email||''; }
+async function submitAffiliateApp(){
+  if(!currentUser){openAuth('login');return;}
+  if(!document.getElementById('affTermsCheck').checked){showToast('Agree to Terms & Conditions','warning');return;}
+  const d={name:document.getElementById('affName').value.trim(),username:document.getElementById('affUsername').value.trim(),email:document.getElementById('affEmail').value.trim(),phone:document.getElementById('affPhone').value.trim(),about:document.getElementById('affAbout').value.trim(),experience:document.getElementById('affExperience').value.trim()};
+  if(Object.values(d).some(v=>!v)){showToast('Fill all required fields','warning');return;}
+  d.portfolio=document.getElementById('affPortfolio').value.trim()||null;
+  const {error}=await sb.from('affiliates').insert({user_id:currentUser.id,...d,type:'commission',status:'pending',total_referrals:0,total_earnings:0,pending_payout:0});
+  if(error){showToast(error.message,'error');return;}
+  showToast('Application submitted!','success');
+  document.getElementById('affRegForm').classList.add('hidden');
+  document.getElementById('commApplyBtnDiv').innerHTML='<div style="text-align:center;padding:18px;background:rgba(255,165,0,.1);border:1px solid rgba(255,165,0,.3);border-radius:var(--radius)"><p style="color:var(--warning);font-weight:600">⏳ Application under review</p></div>';
+}
+async function submitSalaryApp(){
+  if(!currentUser){openAuth('login');return;}
+  const d={name:document.getElementById('salaryName').value.trim(),username:document.getElementById('salaryUsername').value.trim(),email:document.getElementById('salaryEmail').value.trim(),phone:document.getElementById('salaryPhone').value.trim(),about:document.getElementById('salaryAbout').value.trim(),experience:document.getElementById('salaryExperience').value.trim()};
+  if(Object.values(d).some(v=>!v)){showToast('Fill all required fields','warning');return;}
+  d.portfolio=document.getElementById('salaryPortfolio').value.trim()||null;
+  await sb.from('affiliates').insert({user_id:currentUser.id,...d,type:'salary',status:'pending',total_referrals:0,total_earnings:0,pending_payout:0});
+  await sb.from('salary_applications').insert({user_id:currentUser.id,full_name:d.name,...d,status:'pending'});
+  showToast('Application submitted!','success');
+  document.getElementById('salaryFormFields').innerHTML='<div style="text-align:center;padding:18px;background:rgba(255,165,0,.1);border:1px solid rgba(255,165,0,.3);border-radius:var(--radius)"><p style="color:var(--warning);font-weight:600">⏳ Application under review</p></div>';
+}
+function copyRefLink(){ navigator.clipboard.writeText(document.getElementById('affRefLink').value).then(()=>showToast('Copied!','success')); }
+
+// ── Employee portal ────────────────────────────────────────
+function switchEmpTab(tab,btn){
+  document.querySelectorAll('.emp-panel').forEach(p=>p.classList.add('hidden'));
+  document.querySelectorAll('.emp-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('emp'+tab)?.classList.remove('hidden');
+  if(btn) btn.classList.add('active');
+  if(tab==='History') loadEmpHistory();
+}
+function toggleWorkFields(){ const t=document.getElementById('workTaskType').value; document.getElementById('placedOrderFields').classList.toggle('hidden',t!=='placed_order'); document.getElementById('postSharingFields').classList.toggle('hidden',t!=='post_sharing'); }
+function toggleBoostFields(){ document.getElementById('boostFields').classList.toggle('hidden',document.getElementById('workIsBoosted').value!=='yes'); }
+async function submitAttendance(){
+  if(!currentUser) return;
+  const d={user_id:currentUser.id,username:document.getElementById('attUser').value.trim(),email:document.getElementById('attEmail').value.trim(),login_time:document.getElementById('attLoginTime').value,logout_time:document.getElementById('attLogoutTime').value,working_hours:document.getElementById('attWorkingHours').value.trim()};
+  if(!d.username||!d.email||!d.login_time||!d.logout_time||!d.working_hours){showToast('Fill all fields','warning');return;}
+  const {error}=await sb.from('employee_attendance').insert(d);
+  if(error){showToast(error.message,'error');return;}
+  showToast('Attendance submitted!','success');
+}
+async function submitWorkDetail(){
+  if(!currentUser) return;
+  const tt=document.getElementById('workTaskType').value;
+  if(!tt){showToast('Select task type','warning');return;}
+  const d={user_id:currentUser.id,username:document.getElementById('workUser').value.trim(),email:document.getElementById('workEmail').value.trim(),job_detail:document.getElementById('workJobDetail').value.trim(),task_type:tt};
+  if(tt==='placed_order'){ d.order_id=document.getElementById('workOrderId').value.trim(); d.service_name=document.getElementById('workServiceName').value.trim(); d.amount=parseFloat(document.getElementById('workAmount').value)||0; d.order_link=document.getElementById('workOrderLink').value.trim(); }
+  else{ d.platforms=[...document.querySelectorAll('#sharePlatformChecks input:checked')].map(c=>c.value); d.post_description=document.getElementById('workPostDesc').value.trim(); d.platform_id=document.getElementById('workPlatformId').value.trim(); d.is_boosted=document.getElementById('workIsBoosted').value==='yes'; if(d.is_boosted){d.boost_platform=document.getElementById('workBoostPlatform').value.trim();d.boost_amount=parseFloat(document.getElementById('workBoostAmount').value)||0;} }
+  const {error}=await sb.from('employee_work_details').insert(d);
+  if(error){showToast(error.message,'error');return;}
+  showToast('Work detail submitted!','success');
+}
+async function loadEmpHistory(){
+  if(!currentUser) return;
+  const [{data:wd},{data:ad}]=await Promise.all([sb.from('employee_work_details').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(20),sb.from('employee_attendance').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(20)]);
+  document.getElementById('empHistoryContent').innerHTML=wd?.length?`<div class="table-wrap"><table class="data-table"><thead><tr><th>Date</th><th>Task</th><th>Detail</th><th>Amt</th></tr></thead><tbody>${wd.map(w=>`<tr><td>${new Date(w.created_at).toLocaleDateString()}</td><td>${w.task_type||'—'}</td><td>${(w.job_detail||'').slice(0,55)}...</td><td>Rs ${w.amount||0}</td></tr>`).join('')}</tbody></table></div>`:'<p style="padding:18px;color:var(--text-secondary)">No work records yet.</p>';
+  document.getElementById('empAttHistContent').innerHTML=ad?.length?`<div class="table-wrap"><table class="data-table"><thead><tr><th>Date</th><th>Login</th><th>Logout</th><th>Hours</th></tr></thead><tbody>${ad.map(a=>`<tr><td>${new Date(a.created_at).toLocaleDateString()}</td><td>${a.login_time||'—'}</td><td>${a.logout_time||'—'}</td><td>${a.working_hours||'—'}</td></tr>`).join('')}</tbody></table></div>`:'<p style="padding:18px;color:var(--text-secondary)">No attendance yet.</p>';
+}
+
+// ── Support ticket ─────────────────────────────────────────
+async function submitTicket(){
+  const n=document.getElementById('ticketName').value.trim(),e=document.getElementById('ticketEmail').value.trim(),s=document.getElementById('ticketSubject').value.trim(),m=document.getElementById('ticketMessage').value.trim();
+  if(!n||!e||!s||!m){showToast('Fill all fields','warning');return;}
+  const {error}=await sb.from('support_tickets').insert({user_id:currentUser?.id||null,name:n,email:e,subject:s,message:m,status:'open'});
+  if(error){showToast(error.message,'error');return;}
+  showToast('Ticket submitted!','success');
+  ['ticketName','ticketEmail','ticketSubject','ticketMessage'].forEach(id=>document.getElementById(id).value='');
+}
+
+// ── Toast ──────────────────────────────────────────────────
+function showToast(msg,type='info'){
+  const icons={success:'✅',error:'❌',warning:'⚠️',info:'ℹ️'};
+  const t=document.createElement('div'); t.className=`toast ${type}`;
+  t.innerHTML=`<span>${icons[type]}</span><span>${msg}</span>`;
+  document.getElementById('toastContainer').appendChild(t);
+  setTimeout(()=>{t.style.opacity='0';t.style.transform='translateX(100%)';setTimeout(()=>t.remove(),300);},4000);
+}
+</script>
+</body>
+</html>
