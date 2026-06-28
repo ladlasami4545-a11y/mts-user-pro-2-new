@@ -359,6 +359,26 @@ textarea.form-control{resize:vertical;min-height:78px;}
 .pm-details{font-size:.8rem;color:var(--text-secondary);line-height:1.5;}
 .pm-account{font-weight:600;color:var(--accent);font-size:.83rem;margin-top:3px;}
 
+/* Add Funds Step Indicator */
+.funds-steps{display:flex;align-items:center;margin-bottom:22px;gap:0;}
+.funds-step-item{display:flex;align-items:center;gap:8px;flex:1;}
+.funds-step-circle{width:32px;height:32px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;color:var(--text-secondary);background:var(--bg-secondary);flex-shrink:0;transition:var(--transition);}
+.funds-step-circle.active{border-color:var(--accent);background:var(--accent);color:#fff;}
+.funds-step-circle.done{border-color:var(--accent3);background:var(--accent3);color:#fff;}
+.funds-step-label{font-size:.78rem;font-weight:600;color:var(--text-secondary);transition:var(--transition);}
+.funds-step-label.active{color:var(--text-primary);}
+.funds-step-connector{flex:1;height:2px;background:var(--border);margin:0 8px;border-radius:2px;transition:var(--transition);}
+.funds-step-connector.done{background:var(--accent3);}
+
+/* Proof upload box */
+.proof-upload-box{border:2px dashed var(--border);border-radius:var(--radius);padding:22px;text-align:center;cursor:pointer;transition:var(--transition);background:var(--glass);margin-bottom:14px;position:relative;}
+.proof-upload-box:hover{border-color:var(--accent);background:rgba(108,99,255,.08);}
+.proof-upload-box.has-file{border-color:var(--accent3);background:rgba(67,233,123,.05);}
+.proof-upload-icon{font-size:2rem;margin-bottom:8px;color:var(--text-secondary);}
+.proof-upload-text{font-size:.85rem;color:var(--text-secondary);}
+.proof-upload-name{font-size:.83rem;color:var(--accent3);font-weight:600;margin-top:6px;}
+#proofFileInput{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+
 /* Affiliate */
 .affiliate-page{padding:38px 20px;max-width:1200px;margin:0 auto;}
 .aff-hero{text-align:center;padding:56px 20px;background:linear-gradient(135deg,rgba(108,99,255,.1),rgba(255,101,132,.05));border:1px solid var(--border);border-radius:var(--radius);margin-bottom:38px;}
@@ -433,6 +453,111 @@ footer{background:var(--bg-secondary);border-top:1px solid var(--border);padding
 .no-data i{display:block;font-size:2.4rem;margin-bottom:9px;opacity:.4;}
 @media(max-width:768px){.user-info-nav{display:none;}}
 @media(max-width:480px){.nav-logo-sub{display:none;}}
+
+/* ===== Service Card Dropdown (Order Page) ===== */
+.service-picker { position: relative; min-width:0; }
+
+.service-picker-trigger{
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 13px;
+  color: var(--text-primary);
+  font-size: .9rem;
+  display:flex; align-items:center; justify-content:space-between;
+  gap:10px;
+  transition: var(--transition);
+  cursor:pointer;
+  user-select:none;
+}
+.service-picker-trigger:focus,
+.service-picker-trigger:hover{
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(108,99,255,.15);
+}
+.service-picker-trigger .sp-left{
+  display:flex; flex-direction:column; gap:2px;
+  min-width:0;
+}
+.service-picker-trigger .sp-title{
+  font-weight:700; font-size:.88rem;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.service-picker-trigger .sp-sub{
+  font-size:.74rem; color:var(--text-secondary);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.service-picker-trigger .sp-caret{ color:var(--text-secondary); font-size:.8rem; flex-shrink:0; }
+
+.service-dropdown{
+  position:absolute;
+  top:calc(100% + 8px);
+  left:0;
+  width:100%;
+  min-width:0;
+  background: var(--bg-card);
+  border:1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  z-index:1200;
+  overflow:hidden;
+  display:none;
+}
+.service-dropdown.open{ display:block; }
+
+.service-dropdown-list{
+  max-height: 340px;
+  overflow:auto;
+  padding: 12px;
+  display:grid;
+  gap: 12px;
+}
+
+.service-pick-card{
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  cursor:pointer;
+  transition: var(--transition);
+}
+.service-pick-card:hover{
+  transform: translateY(-2px);
+  border-color: var(--accent);
+  box-shadow: var(--shadow);
+}
+.service-pick-card.selected{
+  border-color: var(--accent3);
+  box-shadow: 0 0 0 2px rgba(67,233,123,.18) inset;
+}
+
+.service-pick-top{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:10px; margin-bottom: 8px;
+}
+.service-pick-id{
+  background: var(--glass);
+  padding: 2px 7px;
+  border-radius: 5px;
+  font-size:.72rem;
+  color: var(--text-secondary);
+  white-space:nowrap;
+}
+.service-pick-name{
+  font-size:.9rem; font-weight:700; line-height:1.35;
+  margin-bottom: 6px;
+}
+.service-pick-meta{
+  display:flex; flex-wrap:wrap; gap:10px;
+  font-size:.74rem;
+  color: var(--text-secondary);
+}
+.service-pick-price{
+  font-weight:800;
+  color: var(--accent3);
+  white-space:nowrap;
+  font-size:.95rem;
+}
 </style>
 </head>
 <body>
@@ -667,12 +792,28 @@ footer{background:var(--bg-secondary);border-top:1px solid var(--border);padding
               <option value="">Select Platform</option>
             </select>
           </div>
-          <div class="form-group">
-            <label class="required">Service</label>
-            <select class="form-control" id="serviceSelect" onchange="onServiceChange()">
-              <option value="">Select Service</option>
-            </select>
-            <div class="details-text" id="serviceDetails"></div>
+          <!-- Card-style service dropdown -->
+          <div class="form-group service-picker" style="display:flex;flex-direction:column;gap:7px;margin-bottom:14px;">
+            <label class="required" style="font-size:.83rem;font-weight:600;color:var(--text-secondary);">Service</label>
+
+            <div id="servicePickerTrigger" class="service-picker-trigger" tabindex="0" onclick="toggleServiceDropdown()">
+              <div class="sp-left">
+                <div class="sp-title" id="servicePickerTitle">Select Service</div>
+                <div class="sp-sub" id="servicePickerSub">Pick a service to see details</div>
+              </div>
+              <div class="sp-caret">▾</div>
+            </div>
+
+            <div id="serviceDropdown" class="service-dropdown">
+              <div class="service-dropdown-list" id="serviceDropdownList">
+                <div style="padding:10px;color:var(--text-secondary);font-size:.85rem">Select a platform first…</div>
+              </div>
+            </div>
+
+            <!-- hidden value holder -->
+            <input type="hidden" id="serviceSelect" value="">
+
+            <div class="details-text" id="serviceDetails" style="font-size:.78rem;color:var(--text-secondary);margin-top:4px;line-height:1.5;"></div>
           </div>
         </div>
         <div class="form-row">
@@ -1117,16 +1258,67 @@ footer{background:var(--bg-secondary);border-top:1px solid var(--border);padding
 <div class="modal-overlay" id="addFundsModal">
   <div class="modal" style="max-width:560px">
     <div class="modal-header"><h2 class="modal-title">💳 Add Funds to Wallet</h2><button class="modal-close" onclick="closeAddFunds()"><i class="fas fa-times"></i></button></div>
-    <div class="form-group"><label class="required">Amount (Rs)</label><input type="number" class="form-control" id="fundAmount" placeholder="Enter amount" min="1"></div>
-    <div class="form-group"><label class="required">Select Payment Method</label><div class="pm-grid" id="paymentMethodsList"><div class="no-data"><i class="fas fa-spinner fa-spin"></i> Loading...</div></div></div>
-    <div id="selectedPmDetails" class="hidden">
-      <div style="background:rgba(108,99,255,.1);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:14px">
-        <h4 style="margin-bottom:7px;font-size:.92rem">Payment Instructions</h4>
-        <div id="paymentInstructions" style="font-size:.85rem;color:var(--text-secondary);line-height:1.6"></div>
+
+    <!-- Step Indicator -->
+    <div class="funds-steps">
+      <div class="funds-step-item">
+        <div class="funds-step-circle active" id="fundStep1Circle">1</div>
+        <div class="funds-step-label active" id="fundStep1Label">Select Method</div>
       </div>
-      <div class="form-group"><label class="required">Transaction ID / Reference</label><input type="text" class="form-control" id="txnId" placeholder="Enter transaction ID after payment"></div>
+      <div class="funds-step-connector" id="fundStepConnector"></div>
+      <div class="funds-step-item">
+        <div class="funds-step-circle" id="fundStep2Circle">2</div>
+        <div class="funds-step-label" id="fundStep2Label">Upload Proof</div>
+      </div>
     </div>
-    <button class="btn-order w-full" onclick="submitAddFunds()"><i class="fas fa-plus-circle"></i> Submit Fund Request</button>
+
+    <!-- STEP 1: Choose Payment Method -->
+    <div id="fundStep1">
+      <p style="font-size:.88rem;color:var(--text-secondary);margin-bottom:14px">Choose how you want to pay:</p>
+      <div class="pm-grid" id="paymentMethodsList"><div class="no-data"><i class="fas fa-spinner fa-spin"></i> Loading...</div></div>
+      <button class="btn-order w-full" style="margin-top:18px" onclick="goToFundStep2()"><i class="fas fa-arrow-right"></i> Next: Upload Proof</button>
+    </div>
+
+    <!-- STEP 2: Amount + Proof Upload -->
+    <div id="fundStep2" class="hidden">
+      <!-- Selected method reminder -->
+      <div id="selectedPmDetails" style="background:rgba(108,99,255,.1);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:18px">
+        <h4 style="margin-bottom:7px;font-size:.92rem">📋 Payment Instructions</h4>
+        <div id="paymentInstructions" style="font-size:.85rem;color:var(--text-secondary);line-height:1.7"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="required">Amount (Rs)</label>
+        <input type="number" class="form-control" id="fundAmount" placeholder="Enter amount you sent" min="1">
+      </div>
+
+      <div class="form-group">
+        <label class="required">Transaction ID / Reference</label>
+        <input type="text" class="form-control" id="txnId" placeholder="Enter transaction ID after payment">
+      </div>
+
+      <div class="form-group">
+        <label>Upload Payment Screenshot <span style="color:var(--text-secondary);font-size:.78rem">(optional but recommended)</span></label>
+        <div class="proof-upload-box" id="proofUploadBox" onclick="document.getElementById('proofFileInput').click()">
+          <input type="file" id="proofFileInput" accept="image/*,.pdf" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;">
+          <div class="proof-upload-icon" id="proofUploadIcon"><i class="fas fa-cloud-upload-alt"></i></div>
+          <div class="proof-upload-text" id="proofUploadText">Click to upload screenshot or receipt</div>
+          <div class="proof-upload-text" style="font-size:.75rem;margin-top:4px;opacity:.6">JPG, PNG, PDF · Max 5MB</div>
+          <div class="proof-upload-name hidden" id="proofFileName"></div>
+        </div>
+        <div id="proofUploadProgress" class="hidden" style="margin-top:8px">
+          <div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden">
+            <div id="proofProgressBar" style="height:100%;width:0%;background:var(--gradient);transition:width .3s;border-radius:2px"></div>
+          </div>
+          <div id="proofUploadStatus" style="font-size:.75rem;color:var(--text-secondary);margin-top:4px">Uploading...</div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px">
+        <button class="btn-clear" style="flex:1" onclick="goToFundStep1()"><i class="fas fa-arrow-left"></i> Back</button>
+        <button class="btn-order" style="flex:2" onclick="submitAddFunds()"><i class="fas fa-plus-circle"></i> Submit Request</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1597,8 +1789,14 @@ async function handleSignup(){
   if(pw!==cp){showToast('Passwords do not match','error');return;}
   if(pw.length<6){showToast('Password must be 6+ characters','warning');return;}
   const {error}=await sb.auth.signUp({email:em,password:pw,options:{data:{full_name:name,username:uname,phone:ph}}});
-  if(error){showToast(error.message,'error');return;}
-  showToast('Account created! Please verify your email.','success'); closeAuth();
+  if(error){
+    const msg=error.message||'';
+    if(msg.toLowerCase().includes('rate limit')||msg.toLowerCase().includes('email rate')||msg.toLowerCase().includes('too many')||error.status===429){
+      showToast('Too many signups — please wait a few minutes then try again, or contact our support team.','warning');
+    } else { showToast(msg,'error'); }
+    return;
+  }
+  showToast('Account created! Please check your email to verify.','success'); closeAuth();
 }
 async function handleForgotPw(){
   const em=document.getElementById('forgotEmail').value.trim();
@@ -1671,12 +1869,37 @@ function filterByPlatform(plat, btn){
   loadServicesByPlatform();
 }
 
-// FIX: separate handler for the <select> dropdown (also triggers category build)
+// Service card dropdown logic
+function toggleServiceDropdown(force){
+  const dd = document.getElementById('serviceDropdown');
+  if(force === true) dd.classList.add('open');
+  else if(force === false) dd.classList.remove('open');
+  else dd.classList.toggle('open');
+}
+function closeServiceDropdown(){ toggleServiceDropdown(false); }
+function openServiceDropdown(){ toggleServiceDropdown(true); }
+
+function setServicePickerEmpty(){
+  document.getElementById('servicePickerTitle').textContent = 'Select Service';
+  document.getElementById('servicePickerSub').textContent = 'Pick a service to see details';
+}
+function setServicePickerSelected(s){
+  document.getElementById('servicePickerTitle').textContent = s?.service_name || 'Selected service';
+  const rateTxt = s?.per_1k ? `${fmt(s.rate)}/1K` : `${fmt(s.rate)}`;
+  document.getElementById('servicePickerSub').textContent =
+    `${s.platform || ''} • Min ${s.min_qty || 0} • ${rateTxt}`;
+}
+document.addEventListener('click', (e) => {
+  if(!e.target.closest('.service-picker')) closeServiceDropdown();
+});
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'Escape') closeServiceDropdown();
+});
+
 function onPlatformSelectChange(){
   const plat=document.getElementById('platformSelect').value;
   activeCategory='all';
   buildCategoryFilterBtns(plat);
-  // sync the platform filter button too
   document.querySelectorAll('.plat-btn').forEach(b=>{
     b.classList.toggle('active', b.dataset.plat===(plat||'all'));
   });
@@ -1684,23 +1907,65 @@ function onPlatformSelectChange(){
 }
 
 function loadServicesByPlatform(){
-  const plat=document.getElementById('platformSelect').value;
-  const ss=document.getElementById('serviceSelect');
-  ss.innerHTML='<option value="">Select Service</option>';
+  const plat = document.getElementById('platformSelect').value;
+  const hidden = document.getElementById('serviceSelect');
+  const list = document.getElementById('serviceDropdownList');
+
+  hidden.value = '';
   document.getElementById('serviceDetails').textContent='';
   clearServiceDesc();
   clearExtraFields();
+  setServicePickerEmpty();
 
-  if(!plat) return;
-
-  // Filter by platform AND active category
-  let svcs=allServices.filter(s=>s.platform===plat);
-  if(activeCategory && activeCategory!=='all'){
-    svcs=svcs.filter(s=>detectCategory(s.service_name).name===activeCategory);
+  if(!plat){
+    list.innerHTML = `<div style="padding:10px;color:var(--text-secondary);font-size:.85rem">Select a platform first…</div>`;
+    return;
   }
 
-  if(!svcs.length){ ss.innerHTML='<option value="">No services in this category</option>'; return; }
-  svcs.forEach(s=>ss.innerHTML+=`<option value="${s.id}">[${s.service_id||''}] ${s.service_name||'Service'}</option>`);
+  let svcs = allServices.filter(s => s.platform === plat);
+  if(activeCategory && activeCategory !== 'all'){
+    svcs = svcs.filter(s => detectCategory(s.service_name).name === activeCategory);
+  }
+
+  if(!svcs.length){
+    list.innerHTML = `<div style="padding:10px;color:var(--text-secondary);font-size:.85rem">No services in this category.</div>`;
+    return;
+  }
+
+  list.innerHTML = svcs.map(s => {
+    const rateTxt = s.per_1k ? `${fmt(s.rate)}/1K` : `${fmt(s.rate)}`;
+    const minTxt = `Min ${(s.min_qty||0).toLocaleString()}`;
+    const maxTxt = `Max ${(s.max_qty||0).toLocaleString()}`;
+    const idTxt = `#${s.service_id || s.id}`;
+    return `
+      <div class="service-pick-card" onclick="pickServiceFromDropdown('${s.id}')">
+        <div class="service-pick-top">
+          <div class="service-pick-price">${rateTxt}</div>
+          <code class="service-pick-id">${idTxt}</code>
+        </div>
+        <div class="service-pick-name">${s.service_name || ''}</div>
+        <div class="service-pick-meta">
+          <span><i class="fas fa-arrow-down"></i> ${minTxt}</span>
+          <span><i class="fas fa-arrow-up"></i> ${maxTxt}</span>
+          <span><i class="fas fa-clock"></i> ${s.delivery_time || '1-24h'}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function pickServiceFromDropdown(id){
+  const hidden = document.getElementById('serviceSelect');
+  hidden.value = id;
+  onServiceChange();
+  markSelectedServiceCard(id);
+  closeServiceDropdown();
+}
+
+function markSelectedServiceCard(id){
+  document.querySelectorAll('.service-pick-card').forEach(c=>c.classList.remove('selected'));
+  const s=allServices.find(x=>String(x.id)===String(id));
+  if(s) setServicePickerSelected(s);
 }
 
 function onServiceChange(){
@@ -1788,7 +2053,11 @@ function pickService(plat,id){
     buildCategoryFilterBtns(plat);
     document.querySelectorAll('.plat-btn').forEach(b=>b.classList.toggle('active',b.dataset.plat===plat));
     loadServicesByPlatform();
-    setTimeout(()=>{document.getElementById('serviceSelect').value=id;onServiceChange();},100);
+    setTimeout(()=>{
+      document.getElementById('serviceSelect').value=id;
+      markSelectedServiceCard(id);
+      onServiceChange();
+    },100);
   },100);
 }
 
@@ -1822,7 +2091,9 @@ async function placeOrder(){
 }
 function clearOrderForm(){
   document.getElementById('platformSelect').value='';
-  document.getElementById('serviceSelect').innerHTML='<option value="">Select Service</option>';
+  document.getElementById('serviceSelect').value='';
+  setServicePickerEmpty();
+  document.getElementById('serviceDropdownList').innerHTML='<div style="padding:10px;color:var(--text-secondary);font-size:.85rem">Select a platform first…</div>';
   ['quantityInput','linkInput','emailInput','customCommentsInput'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('totalAmount').value=''; delete document.getElementById('totalAmount').dataset.pkr;
   document.getElementById('countrySelect').value='';
@@ -1976,8 +2247,52 @@ async function changePassword(){
 function copyDashRefLink(){ navigator.clipboard.writeText(document.getElementById('dashRefLink').value).then(()=>showToast('Copied!','success')); }
 
 // ── Add funds ──────────────────────────────────────────────
-function openAddFunds(){ if(!currentUser){openAuth('login');return;} document.getElementById('addFundsModal').classList.add('open'); renderPMUI(); }
-function closeAddFunds(){ document.getElementById('addFundsModal').classList.remove('open'); selectedPm=null; document.getElementById('selectedPmDetails').classList.add('hidden'); document.getElementById('txnId').value=''; document.getElementById('fundAmount').value=''; }
+let proofUploadUrl = null;
+
+function openAddFunds(){
+  if(!currentUser){openAuth('login');return;}
+  document.getElementById('addFundsModal').classList.add('open');
+  goToFundStep1();
+  renderPMUI();
+}
+function closeAddFunds(){
+  document.getElementById('addFundsModal').classList.remove('open');
+  selectedPm=null;
+  proofUploadUrl=null;
+  document.getElementById('txnId').value='';
+  document.getElementById('fundAmount').value='';
+  document.getElementById('proofFileName').classList.add('hidden');
+  document.getElementById('proofUploadBox').classList.remove('has-file');
+  document.getElementById('proofUploadIcon').innerHTML='<i class="fas fa-cloud-upload-alt"></i>';
+  document.getElementById('proofUploadText').textContent='Click to upload screenshot or receipt';
+  document.getElementById('proofUploadProgress').classList.add('hidden');
+  document.getElementById('proofFileInput').value='';
+}
+
+function goToFundStep1(){
+  document.getElementById('fundStep1').classList.remove('hidden');
+  document.getElementById('fundStep2').classList.add('hidden');
+  // Step indicator
+  document.getElementById('fundStep1Circle').className='funds-step-circle active';
+  document.getElementById('fundStep1Label').className='funds-step-label active';
+  document.getElementById('fundStep2Circle').className='funds-step-circle';
+  document.getElementById('fundStep2Label').className='funds-step-label';
+  document.getElementById('fundStepConnector').className='funds-step-connector';
+}
+
+function goToFundStep2(){
+  if(!selectedPm){showToast('Please select a payment method first','warning');return;}
+  document.getElementById('fundStep1').classList.add('hidden');
+  document.getElementById('fundStep2').classList.remove('hidden');
+  // Step indicator
+  document.getElementById('fundStep1Circle').className='funds-step-circle done';
+  document.getElementById('fundStep1Circle').innerHTML='✓';
+  document.getElementById('fundStep1Label').className='funds-step-label';
+  document.getElementById('fundStep2Circle').className='funds-step-circle active';
+  document.getElementById('fundStep2Label').className='funds-step-label active';
+  document.getElementById('fundStepConnector').className='funds-step-connector done';
+}
+
 function renderPMUI(){
   const c=document.getElementById('paymentMethodsList');
   if(!paymentMethods.length){ loadPaymentMethods().then(()=>{ if(!paymentMethods.length) c.innerHTML='<p style="padding:9px;color:var(--text-secondary)">No payment methods. Contact support.</p>'; else renderPMUI(); }); return; }
@@ -1988,16 +2303,56 @@ function selectPM(id){
   selectedPm=pm;
   document.querySelectorAll('.pm-card').forEach(c=>c.classList.remove('selected'));
   document.getElementById('pm-'+id)?.classList.add('selected');
-  document.getElementById('selectedPmDetails').classList.remove('hidden');
   document.getElementById('paymentInstructions').innerHTML=`<strong>${pm.name}</strong><br>${pm.instructions||'Send amount to account below.'}<br>${(pm.account||pm.account_number)?`<br><strong>Account:</strong> <code style="background:var(--glass);padding:1px 5px;border-radius:3px">${pm.account||pm.account_number}</code>`:''}${pm.account_name?`<br><strong>Name:</strong> ${pm.account_name}`:''}`;
 }
+
+// Proof image upload handler
+document.addEventListener('DOMContentLoaded',()=>{
+  const fi=document.getElementById('proofFileInput');
+  if(fi) fi.addEventListener('change',handleProofFileSelect);
+});
+function handleProofFileSelect(e){
+  const file=e.target.files[0]; if(!file) return;
+  if(file.size>5*1024*1024){showToast('File too large (max 5MB)','error');return;}
+  const box=document.getElementById('proofUploadBox');
+  const fn=document.getElementById('proofFileName');
+  const icon=document.getElementById('proofUploadIcon');
+  const txt=document.getElementById('proofUploadText');
+  box.classList.add('has-file');
+  icon.innerHTML='<i class="fas fa-file-image" style="color:var(--accent3)"></i>';
+  txt.textContent='File selected:';
+  fn.textContent=file.name; fn.classList.remove('hidden');
+  // Upload to Supabase Storage
+  uploadProofFile(file);
+}
+async function uploadProofFile(file){
+  const prog=document.getElementById('proofUploadProgress');
+  const bar=document.getElementById('proofProgressBar');
+  const status=document.getElementById('proofUploadStatus');
+  prog.classList.remove('hidden');
+  bar.style.width='30%'; status.textContent='Uploading...';
+  try{
+    const ext=file.name.split('.').pop();
+    const path=`proofs/${currentUser.id}/${Date.now()}.${ext}`;
+    const {data,error}=await sb.storage.from('payment-proofs').upload(path,file,{upsert:true});
+    if(error) throw error;
+    bar.style.width='100%'; status.textContent='✅ Uploaded!';
+    const {data:{publicUrl}}=sb.storage.from('payment-proofs').getPublicUrl(path);
+    proofUploadUrl=publicUrl;
+    setTimeout(()=>prog.classList.add('hidden'),2000);
+  }catch(err){
+    bar.style.width='0%'; status.style.color='var(--danger)'; status.textContent='Upload failed — you can still submit without it';
+    proofUploadUrl=null;
+  }
+}
+
 async function submitAddFunds(){
   if(!currentUser) return;
   const amt=parseFloat(document.getElementById('fundAmount').value), tid=document.getElementById('txnId').value.trim();
   if(!amt||amt<=0){showToast('Enter valid amount','warning');return;}
   if(!selectedPm){showToast('Select a payment method','warning');return;}
   if(!tid){showToast('Enter transaction ID','warning');return;}
-  const {error}=await sb.from('transactions').insert({user_id:currentUser.id,type:'deposit',amount:amt,payment_method:selectedPm.name,reference:tid,description:`Add funds via ${selectedPm.name}`,status:'pending'});
+  const {error}=await sb.from('transactions').insert({user_id:currentUser.id,type:'deposit',amount:amt,payment_method:selectedPm.name,reference:tid,proof_url:proofUploadUrl||null,description:`Add funds via ${selectedPm.name}`,status:'pending'});
   if(error){showToast('Failed: '+error.message,'error');return;}
   showToast('Request submitted! Pending admin approval.','success'); closeAddFunds();
 }
