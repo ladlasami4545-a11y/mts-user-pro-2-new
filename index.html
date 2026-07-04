@@ -284,6 +284,12 @@ textarea.form-control{resize:vertical;min-height:78px;}
 .modal-overlay.open{opacity:1;pointer-events:all;}
 .modal{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:30px;width:100%;max-width:490px;max-height:90vh;overflow-y:auto;transform:scale(.9);transition:var(--transition);}
 .modal-overlay.open .modal{transform:scale(1);}
+.order-slip-check{width:64px;height:64px;border-radius:50%;background:var(--accent3);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.7rem;margin:0 auto;box-shadow:0 0 0 8px rgba(67,233,123,.15);}
+.order-slip-box{background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;display:flex;flex-direction:column;gap:9px;}
+.order-slip-row{display:flex;align-items:center;justify-content:space-between;font-size:.85rem;color:var(--text-secondary);gap:10px;}
+.order-slip-row strong{color:var(--text-primary);text-align:right;}
+.order-slip-num-row{padding-bottom:9px;border-bottom:1px dashed var(--border);}
+.order-slip-num-row strong{color:var(--accent);font-size:1.05rem;letter-spacing:.5px;font-family:'Courier New',monospace;}
 .modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;}
 .modal-title{font-size:1.25rem;font-weight:800;}
 .modal-close{background:none;border:none;color:var(--text-secondary);font-size:1.25rem;cursor:pointer;padding:5px;border-radius:var(--radius-sm);}
@@ -1331,6 +1337,31 @@ footer{background:var(--bg-secondary);border-top:1px solid var(--border);padding
   </div>
 </div>
 
+<!-- ORDER SUCCESS MODAL (ORDER SLIP) -->
+<div class="modal-overlay" id="orderSuccessModal" onclick="if(event.target===this)closeOrderSuccess()">
+  <div class="modal" style="max-width:480px">
+    <div class="order-slip-check"><i class="fas fa-check"></i></div>
+    <h2 style="text-align:center;margin:14px 0 2px;font-size:1.25rem">Order Placed Successfully!</h2>
+    <p style="text-align:center;color:var(--text-secondary);font-size:.85rem;margin-bottom:18px">Your order has been received and is being processed.</p>
+    <div class="order-slip-box">
+      <div class="order-slip-row order-slip-num-row">
+        <span>Order Number</span>
+        <strong id="slipOrderNumber">—</strong>
+      </div>
+      <div class="order-slip-row"><span>Service</span><strong id="slipServiceName">—</strong></div>
+      <div class="order-slip-row"><span>Platform</span><strong id="slipPlatform">—</strong></div>
+      <div class="order-slip-row"><span>Quantity</span><strong id="slipQuantity">—</strong></div>
+      <div class="order-slip-row"><span>Amount</span><strong id="slipAmount">—</strong></div>
+      <div class="order-slip-row"><span>Status</span><strong id="slipStatus">—</strong></div>
+      <div class="order-slip-row"><span>Date</span><strong id="slipDate">—</strong></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:18px">
+      <button class="btn-clear" style="flex:1" onclick="closeOrderSuccess()">Close</button>
+      <button class="btn-order" style="flex:1" onclick="closeOrderSuccess();navigate('dashboard');switchDashTab('orders')"><i class="fas fa-box"></i> View Orders</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ============================================================
 // SUPABASE CONFIG
@@ -1395,6 +1426,26 @@ const PLAT_DEFAULT = { fa:'fas fa-globe', cls:'plat-default', color:'#6c63ff' };
 
 function getPlatConf(name) {
   return PLAT_CONFIG[name] || PLAT_DEFAULT;
+}
+
+// Real brand icon support: if admin pasted a logo/icon URL on the platform
+// row, use that image. Otherwise fall back to the Font Awesome brand icon.
+function getPlatformIconUrl(name){
+  const p = allPlatforms.find(x=>x.name===name);
+  if(!p) return null;
+  const candidate = p.icon_url || p.logo_url || p.image_url || p.icon || p.logo || null;
+  if(candidate && /^https?:\/\//i.test(candidate)) return candidate;
+  return null;
+}
+function renderPlatIcon(name, sizePx){
+  const conf = getPlatConf(name);
+  const url = getPlatformIconUrl(name);
+  const size = sizePx || 16;
+  if(url){
+    const fallback = `this.onerror=null;this.outerHTML='<i class=\\"${conf.fa}\\" style=\\"color:${conf.color};font-size:${size}px\\"></i>';`;
+    return `<img src="${url}" alt="${name}" loading="lazy" style="width:${size}px;height:${size}px;object-fit:contain;border-radius:4px;vertical-align:middle" onerror="${fallback}">`;
+  }
+  return `<i class="${conf.fa}" style="color:${conf.color};font-size:${size}px"></i>`;
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1505,6 +1556,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Load data in parallel
   syncShow('syncing','Loading...');
   await Promise.all([loadSettings(), loadServicesDB(), loadPlatformsDB(), loadPaymentMethods()]);
+  applyAffVisibility(); applyCommDisplay();
   syncShow('','Synced');
 
   initCounters();
@@ -1653,7 +1705,7 @@ function buildPlatformFilterBtns(){
   let html=`<button class="plat-btn${cur==='all'?' active':''}" data-plat="all" onclick="filterByPlatform('all',this)"><i class="fas fa-globe"></i> All</button>`;
   plats.forEach(p=>{
     const conf=getPlatConf(p.name);
-    html+=`<button class="plat-btn${cur===p.name?' active':''}" data-plat="${p.name}" onclick="filterByPlatform('${p.name}',this)" style="color:${conf.color};border-color:${conf.color}22"><i class="${conf.fa}"></i> ${p.name}</button>`;
+    html+=`<button class="plat-btn${cur===p.name?' active':''}" data-plat="${p.name}" onclick="filterByPlatform('${p.name}',this)" style="color:${conf.color};border-color:${conf.color}22">${renderPlatIcon(p.name,15)} ${p.name}</button>`;
   });
   c.innerHTML=html;
 }
@@ -1682,7 +1734,7 @@ function buildHomePlatformGrid(){
     const conf=getPlatConf(p.name);
     const cnt=allServices.filter(s=>s.platform===p.name).length;
     return `<div class="platform-card ${conf.cls}" onclick="filterByPlatform('${p.name}',null);navigate('order')" title="${p.name}">
-      <div class="plat-icon-wrap"><i class="${conf.fa}" style="color:${conf.color};font-size:1.9rem"></i></div>
+      <div class="plat-icon-wrap">${renderPlatIcon(p.name,30)}</div>
       <div class="platform-name">${p.name}</div>
       ${cnt?`<div class="platform-desc">${cnt} service${cnt!==1?'s':''}</div>`:''}
     </div>`;
@@ -2061,6 +2113,26 @@ function pickService(plat,id){
   },100);
 }
 
+// ── Order number + order slip modal ─────────────────────────
+function formatOrderNumber(o){
+  if(o?.order_number){
+    const s=String(o.order_number);
+    return s.length>5 ? s.slice(0,5)+' '+s.slice(5) : s;
+  }
+  return '#'+String(o?.id||'').slice(-6).toUpperCase();
+}
+function showOrderSuccessModal(o){
+  document.getElementById('slipOrderNumber').textContent=formatOrderNumber(o);
+  document.getElementById('slipServiceName').textContent=o.service_name||'—';
+  document.getElementById('slipPlatform').textContent=o.platform||'—';
+  document.getElementById('slipQuantity').textContent=(o.quantity||0).toLocaleString();
+  document.getElementById('slipAmount').textContent=fmt(parseFloat(o.amount||0));
+  document.getElementById('slipStatus').textContent=(o.status||'pending');
+  document.getElementById('slipDate').textContent=o.created_at?new Date(o.created_at).toLocaleString():new Date().toLocaleString();
+  document.getElementById('orderSuccessModal').classList.add('open');
+}
+function closeOrderSuccess(){ document.getElementById('orderSuccessModal').classList.remove('open'); }
+
 // ── Place order ────────────────────────────────────────────
 async function placeOrder(){
   if(!currentUser){openAuth('login');showToast('Please login to place an order','warning');return;}
@@ -2082,8 +2154,21 @@ async function placeOrder(){
     const {data,error}=await sb.rpc('place_order',{p_service_id:id,p_platform:plat,p_service_name:s.service_name,p_quantity:qty,p_amount:pkr,p_link:link||null,p_email_address:em||null,p_target_country:country||null,p_custom_comments:cc||null});
     if(error) throw error;
     if(!data.success) throw new Error(data.error||'Order failed');
-    showToast('Order placed successfully! 🎉','success'); clearOrderForm();
+    clearOrderForm();
     await loadProfile(); updateNavUser();
+    // Fetch the just-created order so we can show the order slip with its
+    // human-readable order number (set automatically by a DB trigger).
+    let newOrder=null;
+    if(data.order_id){
+      const {data:o}=await sb.from('orders').select('*').eq('id',data.order_id).maybeSingle();
+      newOrder=o;
+    }
+    if(!newOrder){
+      const {data:latest}=await sb.from('orders').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(1);
+      newOrder=latest?.[0]||null;
+    }
+    if(newOrder) showOrderSuccessModal(newOrder);
+    else showToast('Order placed successfully! 🎉','success');
   }catch(err){
     if(err.message?.includes('Insufficient')){showToast('Insufficient balance. Please add funds.','error');openAddFunds();}
     else showToast(err.message||'Order failed','error');
@@ -2109,7 +2194,7 @@ function clearOrderForm(){
 // ── Services page ──────────────────────────────────────────
 function platBadge(name){
   const pc=getPlatConf(name);
-  return `<span class="sc-plat" style="border-color:${pc.color}40"><i class="${pc.fa}" style="color:${pc.color}"></i> ${name||'—'}</span>`;
+  return `<span class="sc-plat" style="border-color:${pc.color}40">${renderPlatIcon(name,14)} ${name||'—'}</span>`;
 }
 function buildServicesCategoryBtns(){
   const wrap=document.getElementById('servicesCategoryWrap');
@@ -2200,7 +2285,7 @@ async function loadDashboard(){
   document.getElementById('dashCompleted').textContent=cc||0;
   const {data:orders}=await sb.from('orders').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(20);
   const tb=document.getElementById('ordersTableBody');
-  if(orders?.length) tb.innerHTML=orders.map(o=>`<tr><td><code style="font-size:.78rem">#${String(o.id).slice(-6).toUpperCase()}</code></td><td>${o.service_name}</td><td>${(o.quantity||0).toLocaleString()}</td><td style="color:var(--accent3);font-weight:600">${fmt(parseFloat(o.amount||0))}</td><td><span class="badge ${o.status}">${o.status}</span></td><td style="font-size:.8rem;color:var(--text-secondary)">${new Date(o.created_at).toLocaleDateString()}</td></tr>`).join('');
+  if(orders?.length) tb.innerHTML=orders.map(o=>`<tr><td><code style="font-size:.78rem">${formatOrderNumber(o)}</code></td><td>${o.service_name}</td><td>${(o.quantity||0).toLocaleString()}</td><td style="color:var(--accent3);font-weight:600">${fmt(parseFloat(o.amount||0))}</td><td><span class="badge ${o.status}">${o.status}</span></td><td style="font-size:.8rem;color:var(--text-secondary)">${new Date(o.created_at).toLocaleDateString()}</td></tr>`).join('');
   else tb.innerHTML='<tr><td colspan="6" class="no-data"><i class="fas fa-box-open"></i>No orders yet</td></tr>';
   const {data:aff}=await sb.from('affiliates').select('total_referrals,total_earnings,pending_payout,referral_code').eq('user_id',currentUser.id).eq('type','commission').maybeSingle();
   if(aff){
