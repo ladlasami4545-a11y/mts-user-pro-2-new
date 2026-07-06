@@ -605,12 +605,12 @@ footer{background:var(--bg-secondary);border-top:1px solid var(--border);padding
     <button class="side-close" onclick="closeSideMenu()"><i class="fas fa-times"></i></button>
   </div>
   <nav class="side-nav">
-    <button class="side-nav-item active" onclick="navigate('home');closeSideMenu()"><i class="fas fa-home"></i> Home</button>
-    <button class="side-nav-item" onclick="navigate('order');closeSideMenu()"><i class="fas fa-shopping-cart"></i> Place Order</button>
-    <button class="side-nav-item" onclick="navigate('services');closeSideMenu()"><i class="fas fa-layer-group"></i> Services</button>
-    <button class="side-nav-item" id="sideAffLink" onclick="navigate('affiliate');closeSideMenu()"><i class="fas fa-users"></i> Affiliate Program</button>
-    <button class="side-nav-item" onclick="navigate('privacy');closeSideMenu()"><i class="fas fa-shield-alt"></i> Privacy Policy</button>
-    <button class="side-nav-item" onclick="navigate('support');closeSideMenu()"><i class="fas fa-headset"></i> Contact Support</button>
+    <button class="side-nav-item active" data-page="home" onclick="navigate('home');closeSideMenu()"><i class="fas fa-home"></i> Home</button>
+    <button class="side-nav-item" data-page="order" onclick="navigate('order');closeSideMenu()"><i class="fas fa-shopping-cart"></i> Place Order</button>
+    <button class="side-nav-item" data-page="services" onclick="navigate('services');closeSideMenu()"><i class="fas fa-layer-group"></i> Services</button>
+    <button class="side-nav-item" id="sideAffLink" data-page="affiliate" onclick="navigate('affiliate');closeSideMenu()"><i class="fas fa-users"></i> Affiliate Program</button>
+    <button class="side-nav-item" data-page="privacy" onclick="navigate('privacy');closeSideMenu()"><i class="fas fa-shield-alt"></i> Privacy Policy</button>
+    <button class="side-nav-item" data-page="support" onclick="navigate('support');closeSideMenu()"><i class="fas fa-headset"></i> Contact Support</button>
     <div class="side-divider"></div>
     <!-- FIX: sideAdminLink is always hidden by default; only revealed after confirmed admin profile load -->
     <div id="sideAdminLink" class="hidden">
@@ -633,11 +633,11 @@ footer{background:var(--bg-secondary);border-top:1px solid var(--border);padding
     </div>
   </div>
   <div class="nav-center">
-    <button class="nav-link active" onclick="navigate('home')">Home</button>
-    <button class="nav-link" onclick="navigate('order')">Order</button>
-    <button class="nav-link" onclick="navigate('services')">Services</button>
-    <button class="nav-link" id="navAffLink" onclick="navigate('affiliate')">Affiliates</button>
-    <button class="nav-link" onclick="navigate('privacy')">Policies</button>
+    <button class="nav-link active" data-page="home" onclick="navigate('home')">Home</button>
+    <button class="nav-link" data-page="order" onclick="navigate('order')">Order</button>
+    <button class="nav-link" data-page="services" onclick="navigate('services')">Services</button>
+    <button class="nav-link" id="navAffLink" data-page="affiliate" onclick="navigate('affiliate')">Affiliates</button>
+    <button class="nav-link" data-page="privacy" onclick="navigate('privacy')">Policies</button>
   </div>
   <div class="nav-right">
     <div id="currencyWrapper">
@@ -941,17 +941,13 @@ footer{background:var(--bg-secondary);border-top:1px solid var(--border);padding
       <p style="font-size:.78rem;color:var(--accent3);margin-top:7px" id="servicesLastUpdated"></p>
     </div>
     <div class="glass-card">
-      <div class="form-row">
-        <div class="form-group">
-          <label>Search Services</label>
-          <input type="text" class="form-control" id="servicesSearch" placeholder="Search by name, platform, ID..." oninput="filterServicesPage()">
-        </div>
-        <div class="form-group">
-          <label>Filter by Platform</label>
-          <select class="form-control" id="servicesPlatformFilter" onchange="onServicesPlatformChange()">
-            <option value="">All Platforms</option>
-          </select>
-        </div>
+      <div class="form-group">
+        <label>Search Services</label>
+        <input type="text" class="form-control" id="servicesSearch" placeholder="Search by name, platform, ID..." oninput="filterServicesPage()">
+      </div>
+      <div class="category-label" style="margin-top:4px">Filter by Platform</div>
+      <div class="platform-filter-btns" id="servicesPlatformFilterBtns">
+        <button class="plat-btn active" data-plat="all" onclick="filterServicesByPlatform('all',this)"><i class="fas fa-globe"></i> All</button>
       </div>
       <div id="servicesCategoryWrap" class="svc-cat-wrap"></div>
     </div>
@@ -1472,6 +1468,7 @@ let activeQuality = 'all';   // 'all' | 'high' | 'low'
 let svcActiveDrop = 'all';
 let svcActiveRefill = 'all';
 let svcActiveQuality = 'all';
+let svcSelectedPlatform = 'all'; // FIX: Services page platform icon-button selection
 
 // ═══════════════════════════════════════════════════════════
 // PLATFORM ICON CONFIG — Font Awesome brand icons + brand colors
@@ -1683,41 +1680,54 @@ function syncShow(state,txt){
 // INIT — auth resolves FIRST, then UI updates
 // ═══════════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', async () => {
-  createParticles();
+  // FIX: The entire init flow is now wrapped in try/catch/finally. Before
+  // this, if anything unexpected threw while building the UI (e.g. bad
+  // data entered in the admin panel — a malformed platform icon URL,
+  // a broken service row, etc.) the loading screen would never be
+  // removed because the code that removes it never ran. Now the loading
+  // screen is guaranteed to be hidden in the `finally` block no matter
+  // what happens above it, and a broken data row only breaks its own
+  // small piece of UI instead of freezing the entire storefront.
+  try{
+    createParticles();
 
-  // FIX: Hide admin link on every load until an 'admin' role is confirmed from the DB.
-  document.getElementById('sideAdminLink')?.classList.add('hidden');
+    // FIX: Hide admin link on every load until an 'admin' role is confirmed from the DB.
+    document.getElementById('sideAdminLink')?.classList.add('hidden');
 
-  // Restore theme preference
-  const t = localStorage.getItem('theme');
-  if(t){ document.documentElement.setAttribute('data-theme',t); if(t==='light') document.getElementById('themeIcon').className='fas fa-sun'; }
+    // Restore theme preference
+    const t = localStorage.getItem('theme');
+    if(t){ document.documentElement.setAttribute('data-theme',t); if(t==='light') document.getElementById('themeIcon').className='fas fa-sun'; }
 
-  // FIX: Wait for Supabase auth to fully resolve BEFORE hiding the loading screen
-  // This prevents the brief flash of admin UI on reload
-  const { data:{ session } } = await sb.auth.getSession();
+    // FIX: Wait for Supabase auth to fully resolve BEFORE hiding the loading screen
+    // This prevents the brief flash of admin UI on reload
+    const { data:{ session } } = await sb.auth.getSession();
 
-  if(session){
-    currentUser = session.user;
-    await loadProfile();      // must complete before updateNavUser
-    updateNavUser();
-  } else {
-    updateNavGuest();         // explicitly set guest state
+    if(session){
+      currentUser = session.user;
+      await loadProfile();      // must complete before updateNavUser
+      updateNavUser();
+    } else {
+      updateNavGuest();         // explicitly set guest state
+    }
+
+    authReady = true;
+
+    // Load data in parallel
+    syncShow('syncing','Loading...');
+    await Promise.all([loadSettings(), loadServicesDB(), loadPlatformsDB(), loadPaymentMethods()]);
+    applyAffVisibility(); applyCommDisplay();
+    syncShow('','Synced');
+
+    initCounters();
+    setupRealtime();
+  }catch(e){
+    console.error('Init failed:',e);
+    showToast('Some data failed to load — please refresh. If this keeps happening, check the admin panel for a bad entry.','warning');
+  }finally{
+    // Hide loading screen no matter what happened above.
+    const l = document.getElementById('loadingScreen');
+    if(l){ l.classList.add('fade-out'); setTimeout(()=>l.remove(),500); }
   }
-
-  authReady = true;
-
-  // Load data in parallel
-  syncShow('syncing','Loading...');
-  await Promise.all([loadSettings(), loadServicesDB(), loadPlatformsDB(), loadPaymentMethods()]);
-  applyAffVisibility(); applyCommDisplay();
-  syncShow('','Synced');
-
-  initCounters();
-  setupRealtime();
-
-  // Hide loading screen only after auth & initial data are ready
-  const l = document.getElementById('loadingScreen');
-  if(l){ l.classList.add('fade-out'); setTimeout(()=>l.remove(),500); }
 
   sb.auth.onAuthStateChange(async(ev,sess)=>{
     if(ev==='SIGNED_IN'){
@@ -1783,22 +1793,32 @@ function setupRealtime(){
 }
 
 // ── Rebuild UIs after realtime ─────────────────────────────
+// FIX: each builder now runs inside its own try/catch. Previously a single
+// bad row (e.g. an admin-entered icon URL that broke rendering) could throw
+// inside one of these builders and, because rebuildPlatformUIs() is called
+// from inside loadPlatformsDB()'s own catch block, the resulting *uncaught*
+// exception would reject the Promise.all(...) in the init handler and skip
+// every line after it — including the code that hides the loading screen.
+// The app would then be stuck showing the loading spinner forever.
+function safeRun(fn,label){
+  try{ fn(); }catch(e){ console.error('UI build failed:',label,e); }
+}
 function rebuildServiceUIs(){
-  buildPlatformFilterBtns();
-  buildPlatformSelect();
-  buildServicesPlatformFilter();
-  buildServicesCategoryBtns();
-  if(document.getElementById('page-services').classList.contains('active')) filterServicesPage();
+  safeRun(buildPlatformFilterBtns,'buildPlatformFilterBtns');
+  safeRun(buildPlatformSelect,'buildPlatformSelect');
+  safeRun(buildServicesPlatformFilterBtns,'buildServicesPlatformFilterBtns');
+  safeRun(buildServicesCategoryBtns,'buildServicesCategoryBtns');
+  safeRun(()=>{ if(document.getElementById('page-services').classList.contains('active')) filterServicesPage(); },'filterServicesPage');
   const upd=document.getElementById('servicesLastUpdated');
   if(upd) upd.textContent='✓ Updated '+new Date().toLocaleTimeString();
-  const plat=document.getElementById('platformSelect').value;
-  if(plat) loadServicesByPlatform();
+  const plat=document.getElementById('platformSelect')?.value;
+  if(plat) safeRun(loadServicesByPlatform,'loadServicesByPlatform');
 }
 function rebuildPlatformUIs(){
-  buildPlatformFilterBtns();
-  buildPlatformSelect();
-  buildServicesPlatformFilter();
-  buildHomePlatformGrid();
+  safeRun(buildPlatformFilterBtns,'buildPlatformFilterBtns');
+  safeRun(buildPlatformSelect,'buildPlatformSelect');
+  safeRun(buildServicesPlatformFilterBtns,'buildServicesPlatformFilterBtns');
+  safeRun(buildHomePlatformGrid,'buildHomePlatformGrid');
 }
 
 // ── Data loaders ──────────────────────────────────────────
@@ -1871,12 +1891,28 @@ function buildPlatformSelect(){
   plats.forEach(p=>s.innerHTML+=`<option value="${p.name}"${p.name===cur?' selected':''}>${p.name}</option>`);
 }
 
-function buildServicesPlatformFilter(){
-  const s=document.getElementById('servicesPlatformFilter'); if(!s) return;
-  const cur=s.value;
+// FIX: Services page now shows platform icon buttons (matching the Order
+// page) instead of a plain <select> dropdown, so users can find a platform
+// visually. svcSelectedPlatform tracks the current pick ('all' = no filter).
+function buildServicesPlatformFilterBtns(){
+  const c=document.getElementById('servicesPlatformFilterBtns');
+  if(!c) return;
+  const cur=c.querySelector('.plat-btn.active')?.dataset?.plat || svcSelectedPlatform || 'all';
   const plats=getPlatforms();
-  s.innerHTML='<option value="">All Platforms</option>';
-  plats.forEach(p=>s.innerHTML+=`<option value="${p.name}"${p.name===cur?' selected':''}>${p.name}</option>`);
+  let html=`<button class="plat-btn${cur==='all'?' active':''}" data-plat="all" onclick="filterServicesByPlatform('all',this)"><i class="fas fa-globe"></i> All</button>`;
+  plats.forEach(p=>{
+    const conf=getPlatConf(p.name);
+    html+=`<button class="plat-btn${cur===p.name?' active':''}" data-plat="${p.name}" onclick="filterServicesByPlatform('${p.name}',this)" style="color:${conf.color};border-color:${conf.color}22">${renderPlatIcon(p.name,15)} ${p.name}</button>`;
+  });
+  c.innerHTML=html;
+}
+function filterServicesByPlatform(plat, btn){
+  svcSelectedPlatform = plat;
+  document.querySelectorAll('#servicesPlatformFilterBtns .plat-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  servicesCategory='All';
+  buildServicesCategoryBtns();
+  filterServicesPage();
 }
 
 function buildHomePlatformGrid(){
@@ -1999,6 +2035,11 @@ function navigate(pg){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+pg)?.classList.add('active');
   window.scrollTo(0,0);
+  // FIX: keep the top nav & side-menu highlighted tab in sync with the
+  // page actually being shown — previously "Home" never lost its active
+  // class because nothing here updated it when navigating elsewhere.
+  document.querySelectorAll('.nav-link[data-page]').forEach(b=>b.classList.toggle('active', b.dataset.page===pg));
+  document.querySelectorAll('.side-nav-item[data-page]').forEach(b=>b.classList.toggle('active', b.dataset.page===pg));
   if(pg==='dashboard'){ if(!currentUser){openAuth('login');return;} loadDashboard(); }
   if(pg==='services') filterServicesPage();
   if(pg==='affiliate'){ loadSettings().then(()=>{applyAffVisibility();applyCommDisplay();checkAffStatus();}); }
@@ -2409,7 +2450,7 @@ function platBadge(name){
 function buildServicesCategoryBtns(){
   const wrap=document.getElementById('servicesCategoryWrap');
   if(!wrap) return;
-  const plat=document.getElementById('servicesPlatformFilter')?.value||'';
+  const plat=svcSelectedPlatform==='all' ? '' : svcSelectedPlatform;
   const cats=getCategoriesForPlatform(plat||'all');
   if(cats.length<=1){ wrap.innerHTML=''; servicesCategory='All'; return; }
   if(!cats.some(c=>c.name===servicesCategory)) servicesCategory='All';
@@ -2421,16 +2462,11 @@ function filterServicesByCategory(name,btn){
   if(btn) btn.classList.add('active');
   filterServicesPage();
 }
-function onServicesPlatformChange(){
-  servicesCategory='All';
-  buildServicesCategoryBtns();
-  filterServicesPage();
-}
 function filterServicesPage(){
   const wrap=document.getElementById('servicesCategoryWrap');
   if(wrap && !wrap.children.length) buildServicesCategoryBtns();
   const kw=(document.getElementById('servicesSearch')?.value||'').toLowerCase();
-  const plat=document.getElementById('servicesPlatformFilter')?.value||'';
+  const plat=svcSelectedPlatform==='all' ? '' : svcSelectedPlatform;
   renderServicesTable(allServices.filter(s=>{
     const mk=!kw||s.service_name?.toLowerCase().includes(kw)||s.platform?.toLowerCase().includes(kw)||s.service_id?.toString().includes(kw);
     const mp=!plat||s.platform===plat;
