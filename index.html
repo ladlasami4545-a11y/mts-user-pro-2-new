@@ -245,6 +245,24 @@ input,select,textarea{font-family:inherit;}
 .cat-btn{padding:5px 13px;border-radius:50px;border:1px solid var(--border);background:var(--glass);color:var(--text-secondary);font-size:.79rem;font-weight:500;cursor:pointer;transition:var(--transition);}
 .cat-btn:hover,.cat-btn.active{background:rgba(67,233,123,.15);border-color:var(--accent3);color:var(--accent3);}
 
+/* Quality / Drop / Refill filter chips */
+.filter-group{margin-bottom:16px;}
+.filter-group:last-child{margin-bottom:0;}
+.qf-btn{padding:5px 13px;border-radius:50px;border:1px solid var(--border);background:var(--glass);color:var(--text-secondary);font-size:.79rem;font-weight:500;cursor:pointer;transition:var(--transition);display:inline-flex;align-items:center;gap:5px;}
+.qf-btn:hover{border-color:var(--accent);color:var(--accent);}
+.qf-btn.active{background:rgba(108,99,255,.2);border-color:var(--accent);color:var(--accent);}
+.qf-btn.active[data-tone="green"]{background:rgba(67,233,123,.18);border-color:var(--accent3);color:var(--accent3);}
+.qf-btn.active[data-tone="pink"]{background:rgba(255,101,132,.18);border-color:var(--accent2);color:var(--accent2);}
+.svc-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:2px;}
+.svc-tag{font-size:.66rem;font-weight:700;padding:2px 7px;border-radius:50px;text-transform:uppercase;letter-spacing:.3px;white-space:nowrap;}
+.svc-tag.tag-nondrop{background:rgba(67,233,123,.15);color:var(--accent3);}
+.svc-tag.tag-lowdrop{background:rgba(255,165,0,.15);color:var(--warning);}
+.svc-tag.tag-highdrop{background:rgba(255,71,87,.15);color:var(--danger);}
+.svc-tag.tag-refill{background:rgba(0,210,255,.15);color:var(--info);}
+.svc-tag.tag-norefill{background:rgba(160,160,184,.15);color:var(--text-secondary);}
+.svc-tag.tag-highq{background:rgba(108,99,255,.18);color:var(--accent);}
+.svc-tag.tag-lowq{background:rgba(255,101,132,.15);color:var(--accent2);}
+
 .search-results{margin-top:10px;display:flex;flex-direction:column;gap:7px;}
 .search-result-item{padding:11px 14px;background:var(--glass);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:var(--transition);display:flex;justify-content:space-between;align-items:center;gap:10px;}
 .search-result-item:hover{border-color:var(--accent);background:rgba(108,99,255,.1);}
@@ -778,6 +796,34 @@ footer{background:var(--bg-secondary);border-top:1px solid var(--border);padding
         <div class="cat-filter-btns" id="categoryFilterBtns"></div>
       </div>
     </div>
+    <!-- Refine Results: Drop / Refill / Quality filters -->
+    <div class="glass-card">
+      <h3><i class="fas fa-sliders-h"></i> Refine Results</h3>
+      <div class="filter-group">
+        <div class="category-label">Drop Rate</div>
+        <div class="cat-filter-btns" id="dropFilterBtns">
+          <button class="qf-btn active" data-drop="all" onclick="filterByDrop('all',this)"><i class="fas fa-circle-notch"></i> All</button>
+          <button class="qf-btn" data-tone="green" data-drop="non_drop" onclick="filterByDrop('non_drop',this)">🛡️ Non Drop</button>
+          <button class="qf-btn" data-drop="low_drop" onclick="filterByDrop('low_drop',this)">📉 Low Drop</button>
+        </div>
+      </div>
+      <div class="filter-group">
+        <div class="category-label">Refill</div>
+        <div class="cat-filter-btns" id="refillFilterBtns">
+          <button class="qf-btn active" data-refill="all" onclick="filterByRefill('all',this)"><i class="fas fa-circle-notch"></i> All</button>
+          <button class="qf-btn" data-refill="refill" onclick="filterByRefill('refill',this)">♻️ Refill</button>
+          <button class="qf-btn" data-refill="no_refill" onclick="filterByRefill('no_refill',this)">🚫 No Refill</button>
+        </div>
+      </div>
+      <div class="filter-group">
+        <div class="category-label">Quality</div>
+        <div class="cat-filter-btns" id="qualityFilterBtns">
+          <button class="qf-btn active" data-quality="all" onclick="filterByQuality('all',this)"><i class="fas fa-circle-notch"></i> All</button>
+          <button class="qf-btn" data-tone="green" data-quality="high" onclick="filterByQuality('high',this)">⭐ High Quality</button>
+          <button class="qf-btn" data-tone="pink" data-quality="low" onclick="filterByQuality('low',this)">💲 Low Quality</button>
+        </div>
+      </div>
+    </div>
     <!-- Search -->
     <div class="glass-card">
       <h3><i class="fas fa-search"></i> Search Services</h3>
@@ -908,6 +954,34 @@ footer{background:var(--bg-secondary);border-top:1px solid var(--border);padding
         </div>
       </div>
       <div id="servicesCategoryWrap" class="svc-cat-wrap"></div>
+    </div>
+    <!-- Refine Results: Drop / Refill / Quality filters (Services page) -->
+    <div class="glass-card">
+      <h3><i class="fas fa-sliders-h"></i> Refine Results</h3>
+      <div class="filter-group">
+        <div class="category-label">Drop Rate</div>
+        <div class="cat-filter-btns" id="svcDropFilterBtns">
+          <button class="qf-btn active" data-drop="all" onclick="filterServicesByDrop('all',this)"><i class="fas fa-circle-notch"></i> All</button>
+          <button class="qf-btn" data-tone="green" data-drop="non_drop" onclick="filterServicesByDrop('non_drop',this)">🛡️ Non Drop</button>
+          <button class="qf-btn" data-drop="low_drop" onclick="filterServicesByDrop('low_drop',this)">📉 Low Drop</button>
+        </div>
+      </div>
+      <div class="filter-group">
+        <div class="category-label">Refill</div>
+        <div class="cat-filter-btns" id="svcRefillFilterBtns">
+          <button class="qf-btn active" data-refill="all" onclick="filterServicesByRefill('all',this)"><i class="fas fa-circle-notch"></i> All</button>
+          <button class="qf-btn" data-refill="refill" onclick="filterServicesByRefill('refill',this)">♻️ Refill</button>
+          <button class="qf-btn" data-refill="no_refill" onclick="filterServicesByRefill('no_refill',this)">🚫 No Refill</button>
+        </div>
+      </div>
+      <div class="filter-group">
+        <div class="category-label">Quality</div>
+        <div class="cat-filter-btns" id="svcQualityFilterBtns">
+          <button class="qf-btn active" data-quality="all" onclick="filterServicesByQuality('all',this)"><i class="fas fa-circle-notch"></i> All</button>
+          <button class="qf-btn" data-tone="green" data-quality="high" onclick="filterServicesByQuality('high',this)">⭐ High Quality</button>
+          <button class="qf-btn" data-tone="pink" data-quality="low" onclick="filterServicesByQuality('low',this)">💲 Low Quality</button>
+        </div>
+      </div>
     </div>
     <div id="servicesGrid" class="services-grid">
       <div class="no-data" style="grid-column:1/-1"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
@@ -1389,6 +1463,16 @@ let authReady = false; // FIX: gate to prevent flashing admin state
 let activeCategory = 'all';
 let servicesCategory = 'All';
 
+// Advanced "Refine Results" filters — Order page
+let activeDrop = 'all';      // 'all' | 'non_drop' | 'low_drop'
+let activeRefill = 'all';    // 'all' | 'refill' | 'no_refill'
+let activeQuality = 'all';   // 'all' | 'high' | 'low'
+
+// Advanced "Refine Results" filters — Services page
+let svcActiveDrop = 'all';
+let svcActiveRefill = 'all';
+let svcActiveQuality = 'all';
+
 // ═══════════════════════════════════════════════════════════
 // PLATFORM ICON CONFIG — Font Awesome brand icons + brand colors
 // ═══════════════════════════════════════════════════════════
@@ -1437,15 +1521,42 @@ function getPlatformIconUrl(name){
   if(candidate && /^https?:\/\//i.test(candidate)) return candidate;
   return null;
 }
+function escAttr(str){
+  return String(str==null?'':str).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+// FIX: Previously the <img> onerror fallback built a chunk of HTML as a
+// backslash-escaped string and stuffed it into the onerror="" attribute.
+// HTML attributes don't understand backslash-escaping, so the browser
+// closed the attribute early and the leftover fallback text (quotes,
+// colons, the closing "></i>") was dumped into the DOM as stray visible
+// characters sitting next to the icon — which is also why the icon looked
+// shoved to one side instead of centered (it had those stray text nodes
+// as flex siblings inside .plat-icon-wrap).
+// Fix: never build HTML-in-an-attribute. Wrap the <img> in a marker span
+// and swap in a real <i> element via the DOM (handlePlatIconError) if the
+// image fails to load.
 function renderPlatIcon(name, sizePx){
   const conf = getPlatConf(name);
   const url = getPlatformIconUrl(name);
   const size = sizePx || 16;
   if(url){
-    const fallback = `this.onerror=null;this.outerHTML='<i class=\\"${conf.fa}\\" style=\\"color:${conf.color};font-size:${size}px\\"></i>';`;
-    return `<img src="${url}" alt="${name}" loading="lazy" style="width:${size}px;height:${size}px;object-fit:contain;border-radius:4px;vertical-align:middle" onerror="${fallback}">`;
+    return `<span class="plat-icon-slot" data-plat-name="${escAttr(name)}" data-plat-size="${size}" style="display:inline-flex;align-items:center;justify-content:center;line-height:0">`
+      + `<img src="${escAttr(url)}" alt="${escAttr(name)}" loading="lazy" style="width:${size}px;height:${size}px;object-fit:contain;border-radius:4px;display:block" onerror="handlePlatIconError(this)">`
+      + `</span>`;
   }
   return `<i class="${conf.fa}" style="color:${conf.color};font-size:${size}px"></i>`;
+}
+function handlePlatIconError(imgEl){
+  const wrap = imgEl.closest('.plat-icon-slot');
+  const name = wrap?.dataset?.platName || '';
+  const size = parseInt(wrap?.dataset?.platSize) || 16;
+  const conf = getPlatConf(name);
+  imgEl.onerror = null;
+  const i = document.createElement('i');
+  i.className = conf.fa;
+  i.style.color = conf.color;
+  i.style.fontSize = size + 'px';
+  if(wrap) wrap.replaceWith(i); else imgEl.replaceWith(i);
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1488,6 +1599,48 @@ function getCategoriesForPlatform(platformName) {
     if (!seen.has(cat.name)) { seen.add(cat.name); cats.push(cat); }
   }
   return cats;
+}
+
+// ═══════════════════════════════════════════════════════════
+// REFINE RESULTS: Drop rate / Refill / Quality detection
+// These are inferred from the service name (and, for refill, the
+// service_refill DB flag when present) since panels typically tag
+// services explicitly, e.g. "IG Followers | Non Drop | Refill 30D | HQ"
+// ═══════════════════════════════════════════════════════════
+function detectDropType(serviceName){
+  const l = (serviceName || '').toLowerCase();
+  if (/non[\s-]?drop|no[\s-]?drop\b/.test(l)) return 'non_drop';
+  if (/low[\s-]?drop/.test(l)) return 'low_drop';
+  if (/high[\s-]?drop|fast[\s-]?drop/.test(l)) return 'high_drop';
+  return null; // unclassified
+}
+function detectQuality(serviceName){
+  const l = (serviceName || '').toLowerCase();
+  if (/high[\s-]?quality|premium|\bhq\b|organic|real\s*(accounts?|users?|followers?)/.test(l)) return 'high';
+  if (/low[\s-]?quality|\blq\b|cheap|budget|bot/.test(l)) return 'low';
+  return null; // unclassified
+}
+function detectRefill(s){
+  // Prefer explicit DB field when present
+  if (typeof s.service_refill === 'boolean') return s.service_refill ? 'refill' : 'no_refill';
+  const l = (s.service_name || '').toLowerCase();
+  if (/no[\s-]?refill|non[\s-]?refill/.test(l)) return 'no_refill';
+  if (/refill/.test(l)) return 'refill';
+  return null; // unclassified
+}
+function svcTagsHtml(s){
+  const tags=[];
+  const d=detectDropType(s.service_name);
+  if(d==='non_drop') tags.push('<span class="svc-tag tag-nondrop">🛡️ Non Drop</span>');
+  else if(d==='low_drop') tags.push('<span class="svc-tag tag-lowdrop">📉 Low Drop</span>');
+  else if(d==='high_drop') tags.push('<span class="svc-tag tag-highdrop">⚠️ High Drop</span>');
+  const r=detectRefill(s);
+  if(r==='refill') tags.push('<span class="svc-tag tag-refill">♻️ Refill</span>');
+  else if(r==='no_refill') tags.push('<span class="svc-tag tag-norefill">🚫 No Refill</span>');
+  const q=detectQuality(s.service_name);
+  if(q==='high') tags.push('<span class="svc-tag tag-highq">⭐ High Quality</span>');
+  else if(q==='low') tags.push('<span class="svc-tag tag-lowq">💲 Low Quality</span>');
+  return tags.length ? `<div class="svc-tags">${tags.join('')}</div>` : '';
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1763,6 +1916,52 @@ function filterByCategory(catName, btn){
   loadServicesByPlatform();
 }
 
+// ── Refine Results filter handlers (Order page) ─────────────
+function filterByDrop(val,btn){
+  activeDrop=val;
+  document.querySelectorAll('#dropFilterBtns .qf-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  loadServicesByPlatform();
+}
+function filterByRefill(val,btn){
+  activeRefill=val;
+  document.querySelectorAll('#refillFilterBtns .qf-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  loadServicesByPlatform();
+}
+function filterByQuality(val,btn){
+  activeQuality=val;
+  document.querySelectorAll('#qualityFilterBtns .qf-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  loadServicesByPlatform();
+}
+function resetRefineFilters(){
+  activeDrop='all'; activeRefill='all'; activeQuality='all';
+  document.querySelectorAll('#dropFilterBtns .qf-btn').forEach(b=>b.classList.toggle('active',b.dataset.drop==='all'));
+  document.querySelectorAll('#refillFilterBtns .qf-btn').forEach(b=>b.classList.toggle('active',b.dataset.refill==='all'));
+  document.querySelectorAll('#qualityFilterBtns .qf-btn').forEach(b=>b.classList.toggle('active',b.dataset.quality==='all'));
+}
+
+// ── Refine Results filter handlers (Services page) ──────────
+function filterServicesByDrop(val,btn){
+  svcActiveDrop=val;
+  document.querySelectorAll('#svcDropFilterBtns .qf-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  filterServicesPage();
+}
+function filterServicesByRefill(val,btn){
+  svcActiveRefill=val;
+  document.querySelectorAll('#svcRefillFilterBtns .qf-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  filterServicesPage();
+}
+function filterServicesByQuality(val,btn){
+  svcActiveQuality=val;
+  document.querySelectorAll('#svcQualityFilterBtns .qf-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  filterServicesPage();
+}
+
 function applyAffVisibility(){
   const ce=siteSettings['commission_program_active']!=='false';
   const se=siteSettings['salary_program_active']!=='false';
@@ -1978,9 +2177,18 @@ function loadServicesByPlatform(){
   if(activeCategory && activeCategory !== 'all'){
     svcs = svcs.filter(s => detectCategory(s.service_name).name === activeCategory);
   }
+  if(activeDrop !== 'all'){
+    svcs = svcs.filter(s => detectDropType(s.service_name) === activeDrop);
+  }
+  if(activeRefill !== 'all'){
+    svcs = svcs.filter(s => detectRefill(s) === activeRefill);
+  }
+  if(activeQuality !== 'all'){
+    svcs = svcs.filter(s => detectQuality(s.service_name) === activeQuality);
+  }
 
   if(!svcs.length){
-    list.innerHTML = `<div style="padding:10px;color:var(--text-secondary);font-size:.85rem">No services in this category.</div>`;
+    list.innerHTML = `<div style="padding:10px;color:var(--text-secondary);font-size:.85rem">No services match the selected filters. Try clearing a filter above.</div>`;
     return;
   }
 
@@ -2001,6 +2209,7 @@ function loadServicesByPlatform(){
           <span><i class="fas fa-arrow-up"></i> ${maxTxt}</span>
           <span><i class="fas fa-clock"></i> ${s.delivery_time || '1-24h'}</span>
         </div>
+        ${svcTagsHtml(s)}
       </div>
     `;
   }).join('');
@@ -2091,7 +2300,7 @@ function performSearch(){
   const res=allServices.filter(s=>s.service_name?.toLowerCase().includes(kw)||s.platform?.toLowerCase().includes(kw)||s.service_id?.toString().includes(kw)||s.rate?.toString().includes(kw)).slice(0,8);
   if(!res.length){re.innerHTML='<p style="padding:9px;color:var(--text-secondary);font-size:.83rem">No results found</p>';return;}
   re.innerHTML=res.map(s=>`<div class="search-result-item" onclick="pickService('${s.platform}','${s.id}')">
-    <div><div class="sri-name">${s.service_name}</div><div class="sri-meta">${s.platform} · ID: ${s.service_id||s.id} · Min: ${s.min_qty}</div></div>
+    <div><div class="sri-name">${s.service_name}</div><div class="sri-meta">${s.platform} · ID: ${s.service_id||s.id} · Min: ${s.min_qty}</div>${svcTagsHtml(s)}</div>
     <div class="sri-price">${fmt(s.rate)}${s.per_1k?'/1K':''}</div>
   </div>`).join('');
 }
@@ -2188,6 +2397,7 @@ function clearOrderForm(){
   clearServiceDesc(); clearExtraFields();
   buildCategoryFilterBtns(null);
   activeCategory='all';
+  resetRefineFilters();
   document.querySelectorAll('.plat-btn').forEach(b=>b.classList.toggle('active',b.dataset.plat==='all'));
 }
 
@@ -2225,17 +2435,21 @@ function filterServicesPage(){
     const mk=!kw||s.service_name?.toLowerCase().includes(kw)||s.platform?.toLowerCase().includes(kw)||s.service_id?.toString().includes(kw);
     const mp=!plat||s.platform===plat;
     const mc=servicesCategory==='All'||detectCategory(s.service_name).name===servicesCategory;
-    return mk&&mp&&mc;
+    const md=svcActiveDrop==='all'||detectDropType(s.service_name)===svcActiveDrop;
+    const mr=svcActiveRefill==='all'||detectRefill(s)===svcActiveRefill;
+    const mq=svcActiveQuality==='all'||detectQuality(s.service_name)===svcActiveQuality;
+    return mk&&mp&&mc&&md&&mr&&mq;
   }));
 }
 function renderServicesTable(svcs){
   const grid=document.getElementById('servicesGrid');
   if(!grid) return;
-  if(!svcs.length){grid.innerHTML='<div class="no-data" style="grid-column:1/-1">No services found</div>';return;}
+  if(!svcs.length){grid.innerHTML='<div class="no-data" style="grid-column:1/-1">No services match the selected filters. Try clearing a filter above.</div>';return;}
   grid.innerHTML=svcs.map(s=>`<div class="service-card">
     <div class="sc-top">${platBadge(s.platform)}<code class="sc-id">#${s.service_id||s.id}</code></div>
     <div class="sc-name">${s.service_name||''}</div>
     <div class="sc-cat">${detectCategory(s.service_name).icon} ${detectCategory(s.service_name).name}</div>
+    ${svcTagsHtml(s)}
     <div class="sc-rate">${fmt(s.rate)}${s.per_1k?'<span class="sc-unit">/1K</span>':''}</div>
     <div class="sc-stats"><span><i class="fas fa-arrow-down"></i> Min ${(s.min_qty||0).toLocaleString()}</span><span><i class="fas fa-arrow-up"></i> Max ${(s.max_qty||0).toLocaleString()}</span><span><i class="fas fa-clock"></i> ${s.delivery_time||'1-24h'}</span></div>
     <div class="sc-actions"><button class="sc-btn sc-detail" onclick="openServiceDetail('${s.id}')"><i class="fas fa-circle-info"></i> Details</button><button class="sc-btn sc-order" onclick="pickService('${s.platform}','${s.id}')"><i class="fas fa-bolt"></i> Order</button></div>
@@ -2247,15 +2461,22 @@ function openServiceDetail(id){
   const s=allServices.find(x=>String(x.id)===String(id));
   if(!s){showToast('Service not found','warning');return;}
   const yn=v=>v?'<span style="color:var(--accent3)">Yes</span>':'<span style="color:var(--text-secondary)">No</span>';
+  const dt=detectDropType(s.service_name), rf=detectRefill(s), ql=detectQuality(s.service_name);
+  const dtLabel = dt==='non_drop'?'🛡️ Non Drop':dt==='low_drop'?'📉 Low Drop':dt==='high_drop'?'⚠️ High Drop':'—';
+  const rfLabel = rf==='refill'?'♻️ Refill':rf==='no_refill'?'🚫 No Refill':'—';
+  const qlLabel = ql==='high'?'⭐ High Quality':ql==='low'?'💲 Low Quality':'—';
   const rows=[
     ['Service ID', s.service_id||s.id],
     ['Platform', s.platform||'—'],
     ['Category', s.category||'—'],
+    ['Drop Rate', dtLabel],
+    ['Refill', rfLabel],
+    ['Quality', qlLabel],
     ['Rate', fmt(s.rate)+(s.per_1k?' / 1K':'')],
     ['Min order', (s.min_qty||0).toLocaleString()],
     ['Max order', (s.max_qty||0).toLocaleString()],
     ['Delivery time', s.delivery_time||'1-24h'],
-    ['Refill', s.service_refill?('Yes'+(s.refill_days?' ('+s.refill_days+' days)':'')):'No'],
+    ['Refill window', s.service_refill?('Yes'+(s.refill_days?' ('+s.refill_days+' days)':'')):'No'],
     ['Link required', yn(s.require_link)],
     ['Email required', yn(s.require_email)]
   ];
