@@ -232,7 +232,40 @@ input,select,textarea{font-family:inherit;}
 .glass-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-bottom:18px;}
 .glass-card h3{font-size:1rem;font-weight:700;color:var(--text-primary);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
 .glass-card h3::before{content:'';width:4px;height:17px;background:var(--gradient);border-radius:2px;flex-shrink:0;}
-.platform-filter-btns{display:flex;flex-wrap:wrap;gap:7px;}
+.platform-filter-btns{display:grid;grid-template-columns:repeat(auto-fill,minmax(82px,1fr));gap:10px;}
+.platform-filter-btns .plat-btn{flex-direction:column;padding:16px 6px;border-radius:16px;font-size:.74rem;gap:8px;background:var(--bg-card);}
+.platform-filter-btns .plat-btn i,.platform-filter-btns .plat-btn svg{font-size:1.4rem;}
+.platform-filter-btns .plat-btn:hover{transform:translateY(-2px);}
+.platform-filter-btns .plat-btn.active{box-shadow:0 8px 20px rgba(108,99,255,.18);transform:translateY(-2px);}
+.svc-cat-wrap,#categoryFilterBtns{display:grid;grid-template-columns:repeat(auto-fill,minmax(82px,1fr));gap:10px;}
+.svc-cat-wrap .cat-btn,#categoryFilterBtns .cat-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px 6px;border-radius:16px;font-size:.74rem;gap:8px;background:var(--bg-card);text-align:center;}
+.cat-tile-icon{font-size:1.4rem;line-height:1;}
+.cat-tile-label{line-height:1.15;}
+.svc-cat-wrap .cat-btn:hover,#categoryFilterBtns .cat-btn:hover{transform:translateY(-2px);}
+.svc-cat-wrap .cat-btn.active,#categoryFilterBtns .cat-btn.active{box-shadow:0 8px 20px rgba(67,233,123,.18);transform:translateY(-2px);}
+@media (max-width:480px){
+  .platform-filter-btns,.svc-cat-wrap,#categoryFilterBtns{grid-template-columns:repeat(auto-fill,minmax(56px,1fr));gap:6px;}
+  .platform-filter-btns .plat-btn,.svc-cat-wrap .cat-btn,#categoryFilterBtns .cat-btn{padding:8px 3px;font-size:.6rem;gap:4px;border-radius:11px;}
+  .platform-filter-btns .plat-btn i,.platform-filter-btns .plat-btn svg,.cat-tile-icon{font-size:.85rem;}
+}
+.svc-maintabs{background:var(--bg-secondary,rgba(255,255,255,.03));border:1px solid var(--border);border-radius:14px;padding:5px;}
+.svc-maintabs .plat-btn{flex:1;justify-content:center;border:none;border-radius:10px;padding:11px 10px;font-size:.85rem;background:transparent;}
+.svc-maintabs .plat-btn.active{background:var(--gradient);color:#fff;box-shadow:none;}
+.svc-maintabs .plat-btn:hover:not(.active){background:rgba(108,99,255,.1);}
+.refine-card{counter-reset:refine-layer;}
+.refine-layer{display:flex;flex-direction:column;align-items:center;text-align:center;position:relative;}
+.refine-layer .cat-filter-btns{justify-content:center;}
+.refine-layer + .refine-layer{border-top:1px solid var(--border);padding-top:16px;margin-top:16px;}
+.click-burst{position:fixed;top:0;left:0;width:0;height:0;pointer-events:none;z-index:9999;}
+.click-burst .ray{position:absolute;top:0;left:0;width:26px;height:1.4px;border-radius:2px;transform-origin:0 50%;opacity:.95;animation:rayBurst .55s cubic-bezier(.25,.8,.35,1) forwards;}
+@keyframes rayBurst{
+  0%{transform:rotate(var(--ang)) translateX(0) scaleX(.3);opacity:1;}
+  100%{transform:rotate(var(--ang)) translateX(30px) scaleX(1);opacity:0;}
+}
+@media (prefers-reduced-motion: reduce){
+  .click-burst{display:none;}
+}
+.trail-line{position:fixed;top:0;left:0;height:1.3px;border-radius:2px;pointer-events:none;z-index:9999;transform-origin:0 50%;opacity:.85;transition:opacity .45s ease-out;}
 .plat-btn{padding:6px 13px;border-radius:50px;border:1px solid var(--border);background:var(--glass);color:var(--text-secondary);font-size:.8rem;font-weight:500;cursor:pointer;transition:var(--transition);display:flex;align-items:center;gap:5px;}
 .plat-btn:hover,.plat-btn.active{background:rgba(108,99,255,.2);border-color:var(--accent);color:var(--accent);}
 .plat-btn i,.plat-btn svg{font-size:.95rem;}
@@ -298,6 +331,14 @@ textarea.form-control{resize:vertical;min-height:78px;}
 .svc-desc-box strong{color:var(--accent);}
 
 /* Modals */
+.oauth-divider{display:flex;align-items:center;gap:10px;margin:16px 0;color:var(--text-secondary);font-size:.78rem;}
+.oauth-divider::before,.oauth-divider::after{content:'';flex:1;height:1px;background:var(--border);}
+.oauth-row{display:flex;gap:10px;margin-bottom:14px;}
+.oauth-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 8px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--glass);color:var(--text-primary);font-size:.85rem;font-weight:600;transition:var(--transition);}
+.oauth-btn:hover{border-color:var(--accent);background:rgba(108,99,255,.08);}
+.oauth-btn.oauth-facebook i{color:#1877F2;}
+.oauth-btn.oauth-github i{color:var(--text-primary);}
+.oauth-btn.oauth-linkedin i{color:#0A66C2;}
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);z-index:2000;display:flex;align-items:center;justify-content:center;padding:18px;opacity:0;pointer-events:none;transition:opacity .3s;}
 .modal-overlay.open{opacity:1;pointer-events:all;}
 .modal{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:30px;width:100%;max-width:490px;max-height:90vh;overflow-y:auto;transform:scale(.9);transition:var(--transition);}
@@ -786,37 +827,40 @@ footer{background:var(--bg-secondary);border-top:1px solid var(--border);padding
     </div>
     <!-- Platform quick-filter -->
     <div class="glass-card">
-      <h3><i class="fas fa-filter"></i> Quick Platform Filter</h3>
+      <div class="svc-maintabs" id="orderMainTabs" style="display:flex;gap:10px;margin-bottom:0">
+        <button class="plat-btn active" data-maintab="all" onclick="setOrderMainTab('all',this)"><i class="fas fa-layer-group"></i> All Services</button>
+        <button class="plat-btn" data-maintab="promo" onclick="setOrderMainTab('promo',this)"><i class="fas fa-bullhorn"></i> Promotions</button>
+      </div>
+    </div>
+    <div class="glass-card">
+      <h3 id="platformFilterLabel"><i class="fas fa-globe"></i> Quick Platform Filter</h3>
       <div class="platform-filter-btns" id="platformFilterBtns">
         <button class="plat-btn active" data-plat="all" onclick="filterByPlatform('all',this)"><i class="fas fa-globe"></i> All</button>
       </div>
-      <!-- FIX: service categories appear here after platform is picked -->
-      <div id="serviceCategoriesWrap">
-        <div class="category-label" style="margin-top:14px">Filter by Category</div>
-        <div class="cat-filter-btns" id="categoryFilterBtns"></div>
-      </div>
+    </div>
+    <!-- FIX: service categories appear here after platform is picked -->
+    <div class="glass-card" id="serviceCategoriesWrap">
+      <h3><i class="fas fa-shapes"></i> Filter by Category</h3>
+      <div class="cat-filter-btns" id="categoryFilterBtns"></div>
     </div>
     <!-- Refine Results: Drop / Refill / Quality filters -->
-    <div class="glass-card">
-      <h3><i class="fas fa-sliders-h"></i> Refine Results</h3>
-      <div class="filter-group">
-        <div class="category-label">Drop Rate</div>
+    <div class="glass-card refine-card">
+      <h3 style="justify-content:center"><i class="fas fa-sliders-h"></i> Refine Results</h3>
+      <div class="filter-group refine-layer" id="dropFilterGroup">
         <div class="cat-filter-btns" id="dropFilterBtns">
           <button class="qf-btn active" data-drop="all" onclick="filterByDrop('all',this)"><i class="fas fa-circle-notch"></i> All</button>
           <button class="qf-btn" data-tone="green" data-drop="non_drop" onclick="filterByDrop('non_drop',this)">🛡️ Non Drop</button>
           <button class="qf-btn" data-drop="low_drop" onclick="filterByDrop('low_drop',this)">📉 Low Drop</button>
         </div>
       </div>
-      <div class="filter-group">
-        <div class="category-label">Refill</div>
+      <div class="filter-group refine-layer" id="refillFilterGroup">
         <div class="cat-filter-btns" id="refillFilterBtns">
           <button class="qf-btn active" data-refill="all" onclick="filterByRefill('all',this)"><i class="fas fa-circle-notch"></i> All</button>
           <button class="qf-btn" data-refill="refill" onclick="filterByRefill('refill',this)">♻️ Refill</button>
           <button class="qf-btn" data-refill="no_refill" onclick="filterByRefill('no_refill',this)">🚫 No Refill</button>
         </div>
       </div>
-      <div class="filter-group">
-        <div class="category-label">Quality</div>
+      <div class="filter-group refine-layer" id="qualityFilterGroup">
         <div class="cat-filter-btns" id="qualityFilterBtns">
           <button class="qf-btn active" data-quality="all" onclick="filterByQuality('all',this)"><i class="fas fa-circle-notch"></i> All</button>
           <button class="qf-btn" data-tone="green" data-quality="high" onclick="filterByQuality('high',this)">⭐ High Quality</button>
@@ -941,37 +985,43 @@ footer{background:var(--bg-secondary);border-top:1px solid var(--border);padding
       <p style="font-size:.78rem;color:var(--accent3);margin-top:7px" id="servicesLastUpdated"></p>
     </div>
     <div class="glass-card">
-      <div class="form-group">
+      <div class="svc-maintabs" id="svcMainTabs" style="display:flex;gap:10px;margin-bottom:18px">
+        <button class="plat-btn active" data-maintab="all" onclick="setServicesMainTab('all',this)"><i class="fas fa-layer-group"></i> All Services</button>
+        <button class="plat-btn" data-maintab="promo" onclick="setServicesMainTab('promo',this)"><i class="fas fa-bullhorn"></i> Promotions</button>
+      </div>
+      <div class="form-group" style="margin-bottom:0">
         <label>Search Services</label>
         <input type="text" class="form-control" id="servicesSearch" placeholder="Search by name, platform, ID..." oninput="filterServicesPage()">
       </div>
-      <div class="category-label" style="margin-top:4px">Filter by Platform</div>
+    </div>
+    <div class="glass-card">
+      <h3 id="servicesPlatformFilterLabel"><i class="fas fa-globe"></i> Filter by Platform</h3>
       <div class="platform-filter-btns" id="servicesPlatformFilterBtns">
         <button class="plat-btn active" data-plat="all" onclick="filterServicesByPlatform('all',this)"><i class="fas fa-globe"></i> All</button>
       </div>
+    </div>
+    <div class="glass-card" id="servicesCategoryCard">
+      <h3><i class="fas fa-shapes"></i> Filter by Category</h3>
       <div id="servicesCategoryWrap" class="svc-cat-wrap"></div>
     </div>
     <!-- Refine Results: Drop / Refill / Quality filters (Services page) -->
-    <div class="glass-card">
-      <h3><i class="fas fa-sliders-h"></i> Refine Results</h3>
-      <div class="filter-group">
-        <div class="category-label">Drop Rate</div>
+    <div class="glass-card refine-card">
+      <h3 style="justify-content:center"><i class="fas fa-sliders-h"></i> Refine Results</h3>
+      <div class="filter-group refine-layer" id="svcDropFilterGroup">
         <div class="cat-filter-btns" id="svcDropFilterBtns">
           <button class="qf-btn active" data-drop="all" onclick="filterServicesByDrop('all',this)"><i class="fas fa-circle-notch"></i> All</button>
           <button class="qf-btn" data-tone="green" data-drop="non_drop" onclick="filterServicesByDrop('non_drop',this)">🛡️ Non Drop</button>
           <button class="qf-btn" data-drop="low_drop" onclick="filterServicesByDrop('low_drop',this)">📉 Low Drop</button>
         </div>
       </div>
-      <div class="filter-group">
-        <div class="category-label">Refill</div>
+      <div class="filter-group refine-layer" id="svcRefillFilterGroup">
         <div class="cat-filter-btns" id="svcRefillFilterBtns">
           <button class="qf-btn active" data-refill="all" onclick="filterServicesByRefill('all',this)"><i class="fas fa-circle-notch"></i> All</button>
           <button class="qf-btn" data-refill="refill" onclick="filterServicesByRefill('refill',this)">♻️ Refill</button>
           <button class="qf-btn" data-refill="no_refill" onclick="filterServicesByRefill('no_refill',this)">🚫 No Refill</button>
         </div>
       </div>
-      <div class="filter-group">
-        <div class="category-label">Quality</div>
+      <div class="filter-group refine-layer" id="svcQualityFilterGroup">
         <div class="cat-filter-btns" id="svcQualityFilterBtns">
           <button class="qf-btn active" data-quality="all" onclick="filterServicesByQuality('all',this)"><i class="fas fa-circle-notch"></i> All</button>
           <button class="qf-btn" data-tone="green" data-quality="high" onclick="filterServicesByQuality('high',this)">⭐ High Quality</button>
@@ -1313,7 +1363,14 @@ footer{background:var(--bg-secondary);border-top:1px solid var(--border);padding
       <div class="form-group"><label class="required">Password</label><input type="password" class="form-control" id="loginPassword"></div>
       <div style="display:flex;justify-content:flex-end;margin-bottom:14px"><button style="background:none;border:none;color:var(--accent);font-size:.83rem;cursor:pointer" onclick="showForgotPw()">Forgot Password?</button></div>
       <button class="btn-order w-full" onclick="handleLogin()"><i class="fas fa-sign-in-alt"></i> Login</button>
+      <div class="oauth-divider">or continue with</div>
+      <div class="oauth-row">
+        <button class="oauth-btn oauth-facebook" onclick="socialLogin('facebook')"><i class="fab fa-facebook-f"></i> Facebook</button>
+        <button class="oauth-btn oauth-github" onclick="socialLogin('github')"><i class="fab fa-github"></i> GitHub</button>
+        <button class="oauth-btn oauth-linkedin" onclick="socialLogin('linkedin_oidc')"><i class="fab fa-linkedin-in"></i> LinkedIn</button>
+      </div>
     </div>
+
     <div id="forgotForm" class="hidden">
       <p style="color:var(--text-secondary);font-size:.88rem;margin-bottom:14px">Enter your email to receive a reset link.</p>
       <div class="form-group"><label>Email</label><input type="email" class="form-control" id="forgotEmail"></div>
@@ -1326,6 +1383,12 @@ footer{background:var(--bg-secondary);border-top:1px solid var(--border);padding
       <div class="form-group"><label>Phone</label><input type="text" class="form-control" id="signupPhone"></div>
       <div class="form-row"><div class="form-group"><label class="required">Password</label><input type="password" class="form-control" id="signupPassword"></div><div class="form-group"><label class="required">Confirm</label><input type="password" class="form-control" id="signupConfirm"></div></div>
       <button class="btn-order w-full" onclick="handleSignup()"><i class="fas fa-user-plus"></i> Create Account</button>
+      <div class="oauth-divider">or sign up with</div>
+      <div class="oauth-row">
+        <button class="oauth-btn oauth-facebook" onclick="socialLogin('facebook')"><i class="fab fa-facebook-f"></i> Facebook</button>
+        <button class="oauth-btn oauth-github" onclick="socialLogin('github')"><i class="fab fa-github"></i> GitHub</button>
+        <button class="oauth-btn oauth-linkedin" onclick="socialLogin('linkedin_oidc')"><i class="fab fa-linkedin-in"></i> LinkedIn</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1457,6 +1520,7 @@ let authReady = false; // FIX: gate to prevent flashing admin state
 
 // Active category filter for order page
 let activeCategory = 'all';
+let orderMainTab = 'all'; // 'all' = All Services, 'promo' = Promotions (Order page)
 let servicesCategory = 'All';
 
 // Advanced "Refine Results" filters — Order page
@@ -1469,6 +1533,7 @@ let svcActiveDrop = 'all';
 let svcActiveRefill = 'all';
 let svcActiveQuality = 'all';
 let svcSelectedPlatform = 'all'; // FIX: Services page platform icon-button selection
+let svcMainTab = 'all'; // 'all' = All Services tab, 'promo' = Promotions tab
 
 // ═══════════════════════════════════════════════════════════
 // PLATFORM ICON CONFIG — Font Awesome brand icons + brand colors
@@ -1664,6 +1729,65 @@ function updateWalletUI(){
   const el = document.getElementById('walletPKR');
   if(el) el.textContent = currency.code!=='PKR' ? '(Rs '+b.toFixed(2)+' PKR)' : '';
 }
+// ── Global click-burst animation: thin multi-color rays on every click ──
+(function(){
+  const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduceMotion) return;
+  const RAY_COUNT = 8;
+  document.addEventListener('click', function(e){
+    const burst = document.createElement('div');
+    burst.className = 'click-burst';
+    burst.style.left = e.clientX + 'px';
+    burst.style.top = e.clientY + 'px';
+    for(let i=0;i<RAY_COUNT;i++){
+      const ray = document.createElement('div');
+      ray.className = 'ray';
+      const ang = (360 / RAY_COUNT) * i;
+      const hue1 = (ang + Math.random()*30) % 360;
+      const hue2 = (hue1 + 100) % 360;
+      ray.style.setProperty('--ang', ang + 'deg');
+      ray.style.background = `linear-gradient(90deg, hsl(${hue1},90%,62%), hsl(${hue2},90%,62%))`;
+      burst.appendChild(ray);
+    }
+    document.body.appendChild(burst);
+    setTimeout(()=>burst.remove(), 600);
+  }, true);
+
+  // Finger-drag / scroll trail: draws a thin line following the touch
+  // point as the user scrolls, fading out smoothly right after.
+  let lastTouch = null;
+  document.addEventListener('touchstart', e=>{
+    const t = e.touches[0];
+    if(t) lastTouch = {x:t.clientX, y:t.clientY, t:Date.now()};
+  }, {passive:true});
+  document.addEventListener('touchmove', e=>{
+    const t = e.touches[0];
+    if(!t) return;
+    const now = Date.now();
+    if(lastTouch && now - lastTouch.t < 30){ return; }
+    if(lastTouch){
+      const dx = t.clientX - lastTouch.x, dy = t.clientY - lastTouch.y;
+      const dist = Math.hypot(dx, dy);
+      if(dist > 4){
+        const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+        const line = document.createElement('div');
+        line.className = 'trail-line';
+        line.style.left = lastTouch.x + 'px';
+        line.style.top = lastTouch.y + 'px';
+        line.style.width = dist + 'px';
+        line.style.transform = `rotate(${angle}deg)`;
+        const hue = (now / 8) % 360;
+        line.style.background = `linear-gradient(90deg, hsl(${hue},90%,62%), hsl(${(hue+90)%360},90%,62%))`;
+        document.body.appendChild(line);
+        requestAnimationFrame(()=>{ line.style.opacity = '0'; });
+        setTimeout(()=>line.remove(), 500);
+      }
+    }
+    lastTouch = {x:t.clientX, y:t.clientY, t:now};
+  }, {passive:true});
+  document.addEventListener('touchend', ()=>{ lastTouch = null; }, {passive:true});
+  document.addEventListener('touchcancel', ()=>{ lastTouch = null; }, {passive:true});
+})();
 document.addEventListener('click',e=>{
   if(!e.target.closest('#currencyWrapper')) document.getElementById('currDd').classList.remove('open');
 });
@@ -1894,6 +2018,95 @@ function buildPlatformSelect(){
 // FIX: Services page now shows platform icon buttons (matching the Order
 // page) instead of a plain <select> dropdown, so users can find a platform
 // visually. svcSelectedPlatform tracks the current pick ('all' = no filter).
+function setServicesMainTab(tab, btn){
+  svcMainTab = tab;
+  document.querySelectorAll('#svcMainTabs .plat-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  svcSelectedPlatform = 'all';
+  servicesCategory = 'All';
+  const label = document.getElementById('servicesPlatformFilterLabel');
+  const dropGroup = document.getElementById('svcDropFilterGroup');
+  const refillGroup = document.getElementById('svcRefillFilterGroup');
+  const catCard = document.getElementById('servicesCategoryCard');
+  const qualityGroup = document.getElementById('svcQualityFilterGroup');
+  if(tab==='promo'){
+    if(label) label.innerHTML = '<i class="fas fa-globe"></i> Filter Promotions by Platform';
+    buildPromoPlatformFilterBtns();
+    if(dropGroup) dropGroup.style.display='none';
+    if(refillGroup) refillGroup.style.display='none';
+    if(catCard) catCard.style.display='none';
+    if(qualityGroup) qualityGroup.style.display='none';
+    // Reset these filters back to "all" so a filter picked before switching
+    // tabs doesn't silently keep hiding promo results while hidden.
+    svcActiveDrop='all'; svcActiveRefill='all'; svcActiveQuality='all';
+    document.querySelectorAll('#svcDropFilterBtns .qf-btn').forEach(b=>b.classList.toggle('active', b.dataset.drop==='all'));
+    document.querySelectorAll('#svcRefillFilterBtns .qf-btn').forEach(b=>b.classList.toggle('active', b.dataset.refill==='all'));
+    document.querySelectorAll('#svcQualityFilterBtns .qf-btn').forEach(b=>b.classList.toggle('active', b.dataset.quality==='all'));
+  } else {
+    if(label) label.innerHTML = '<i class="fas fa-globe"></i> Filter by Platform';
+    buildServicesPlatformFilterBtns();
+    if(dropGroup) dropGroup.style.display='';
+    if(refillGroup) refillGroup.style.display='';
+    if(catCard) catCard.style.display='';
+    if(qualityGroup) qualityGroup.style.display='';
+  }
+  buildServicesCategoryBtns();
+  filterServicesPage();
+}
+// Promotions tab only shows Facebook / TikTok / Instagram / YouTube, since
+// that's where "promotion" style boost services (page/video/post promotion) apply.
+function promoPlatformButtonsHtml(clickFn){
+  const promoPlats=['Facebook','TikTok','Instagram','YouTube'];
+  let html=`<button class="plat-btn active" data-plat="all" onclick="${clickFn}('all',this)"><i class="fas fa-globe"></i> All</button>`;
+  promoPlats.forEach(name=>{
+    const conf=getPlatConf(name);
+    html+=`<button class="plat-btn" data-plat="${name}" onclick="${clickFn}('${name}',this)" style="color:${conf.color};border-color:${conf.color}22">${renderPlatIcon(name,15)} ${name}</button>`;
+  });
+  return html;
+}
+function buildPromoPlatformFilterBtns(){
+  const c=document.getElementById('servicesPlatformFilterBtns');
+  if(!c) return;
+  c.innerHTML=promoPlatformButtonsHtml('filterServicesByPlatform');
+}
+function buildOrderPromoPlatformFilterBtns(){
+  const c=document.getElementById('platformFilterBtns');
+  if(!c) return;
+  c.innerHTML=promoPlatformButtonsHtml('filterByPlatform');
+}
+function isPromoService(name){
+  return /promo(te|tion)?\b/i.test(name || '');
+}
+function setOrderMainTab(tab, btn){
+  orderMainTab = tab;
+  document.querySelectorAll('#orderMainTabs .plat-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  document.getElementById('platformSelect').value='';
+  activeCategory='all';
+  const label=document.getElementById('platformFilterLabel');
+  const dropGroup=document.getElementById('dropFilterGroup');
+  const refillGroup=document.getElementById('refillFilterGroup');
+  const qualityGroup=document.getElementById('qualityFilterGroup');
+  if(tab==='promo'){
+    if(label) label.innerHTML='<i class="fas fa-filter"></i> Quick Platform Filter (Promotions)';
+    buildOrderPromoPlatformFilterBtns();
+    if(dropGroup) dropGroup.style.display='none';
+    if(refillGroup) refillGroup.style.display='none';
+    if(qualityGroup) qualityGroup.style.display='none';
+    activeDrop='all'; activeRefill='all'; activeQuality='all';
+    document.querySelectorAll('#dropFilterBtns .qf-btn').forEach(b=>b.classList.toggle('active', b.dataset.drop==='all'));
+    document.querySelectorAll('#refillFilterBtns .qf-btn').forEach(b=>b.classList.toggle('active', b.dataset.refill==='all'));
+    document.querySelectorAll('#qualityFilterBtns .qf-btn').forEach(b=>b.classList.toggle('active', b.dataset.quality==='all'));
+  } else {
+    if(label) label.innerHTML='<i class="fas fa-filter"></i> Quick Platform Filter';
+    buildPlatformFilterBtns();
+    if(dropGroup) dropGroup.style.display='';
+    if(refillGroup) refillGroup.style.display='';
+    if(qualityGroup) qualityGroup.style.display='';
+  }
+  buildCategoryFilterBtns(null);
+  loadServicesByPlatform();
+}
 function buildServicesPlatformFilterBtns(){
   const c=document.getElementById('servicesPlatformFilterBtns');
   if(!c) return;
@@ -1935,11 +2148,12 @@ function buildCategoryFilterBtns(platformName){
   const wrap=document.getElementById('serviceCategoriesWrap');
   const c=document.getElementById('categoryFilterBtns');
   if(!wrap||!c) return;
+  if(orderMainTab==='promo'){ wrap.classList.remove('show'); activeCategory='all'; return; }
   if(!platformName || platformName==='all'){ wrap.classList.remove('show'); activeCategory='all'; return; }
   const cats=getCategoriesForPlatform(platformName);
   if(cats.length<=1){ wrap.classList.remove('show'); activeCategory='all'; return; }
   activeCategory='all';
-  c.innerHTML=cats.map(cat=>`<button class="cat-btn${cat.name==='All'?' active':''}" onclick="filterByCategory('${cat.name}',this)">${cat.icon} ${cat.name}</button>`).join('');
+  c.innerHTML=cats.map(cat=>`<button class="cat-btn${cat.name==='All'?' active':''}" onclick="filterByCategory('${cat.name}',this)"><span class="cat-tile-icon">${cat.icon}</span><span class="cat-tile-label">${cat.name}</span></button>`).join('');
   wrap.classList.add('show');
 }
 
@@ -2031,6 +2245,16 @@ function initCounters(){
 }
 
 // ── Navigation ─────────────────────────────────────────────
+// Jump straight to the Services page with the Promotions tab pre-selected,
+// used by the dedicated "Promotions" links in the top navbar & side menu.
+function navigateToPromotions(){
+  navigate('services');
+  document.querySelectorAll('.promo-nav').forEach(b=>b.classList.add('active'));
+  setTimeout(()=>{
+    const btn=document.querySelector('#svcMainTabs [data-maintab="promo"]');
+    setServicesMainTab('promo', btn);
+  },0);
+}
 function navigate(pg){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+pg)?.classList.add('active');
@@ -2040,6 +2264,7 @@ function navigate(pg){
   // class because nothing here updated it when navigating elsewhere.
   document.querySelectorAll('.nav-link[data-page]').forEach(b=>b.classList.toggle('active', b.dataset.page===pg));
   document.querySelectorAll('.side-nav-item[data-page]').forEach(b=>b.classList.toggle('active', b.dataset.page===pg));
+  document.querySelectorAll('.promo-nav').forEach(b=>b.classList.remove('active'));
   if(pg==='dashboard'){ if(!currentUser){openAuth('login');return;} loadDashboard(); }
   if(pg==='services') filterServicesPage();
   if(pg==='affiliate'){ loadSettings().then(()=>{applyAffVisibility();applyCommDisplay();checkAffStatus();}); }
@@ -2066,6 +2291,13 @@ function showForgotPw(){ document.getElementById('loginForm').classList.add('hid
 function showLoginForm(){ document.getElementById('forgotForm').classList.add('hidden'); document.getElementById('loginForm').classList.remove('hidden'); }
 
 // ── Auth handlers ──────────────────────────────────────────
+async function socialLogin(provider){
+  const {error}=await sb.auth.signInWithOAuth({provider:provider,options:{redirectTo:location.origin+location.pathname}});
+  if(error){showToast(error.message,'error');}
+  // On success, Supabase redirects the browser to the provider's login page,
+  // then back to this page — no further code needed here; onAuthStateChange
+  // (already set up elsewhere in this file) picks up the new session.
+}
 async function handleLogin(){
   const em=document.getElementById('loginEmail').value.trim(), pw=document.getElementById('loginPassword').value;
   if(!em||!pw){showToast('Please fill all fields','warning');return;}
@@ -2226,6 +2458,9 @@ function loadServicesByPlatform(){
   }
   if(activeQuality !== 'all'){
     svcs = svcs.filter(s => detectQuality(s.service_name) === activeQuality);
+  }
+  if(orderMainTab === 'promo'){
+    svcs = svcs.filter(s => isPromoService(s.service_name));
   }
 
   if(!svcs.length){
@@ -2450,11 +2685,12 @@ function platBadge(name){
 function buildServicesCategoryBtns(){
   const wrap=document.getElementById('servicesCategoryWrap');
   if(!wrap) return;
+  if(svcMainTab==='promo'){ wrap.innerHTML=''; servicesCategory='All'; return; }
   const plat=svcSelectedPlatform==='all' ? '' : svcSelectedPlatform;
   const cats=getCategoriesForPlatform(plat||'all');
   if(cats.length<=1){ wrap.innerHTML=''; servicesCategory='All'; return; }
   if(!cats.some(c=>c.name===servicesCategory)) servicesCategory='All';
-  wrap.innerHTML=cats.map(c=>`<button class="cat-btn${c.name===servicesCategory?' active':''}" onclick="filterServicesByCategory('${c.name}',this)">${c.icon} ${c.name}</button>`).join('');
+  wrap.innerHTML=cats.map(c=>`<button class="cat-btn${c.name===servicesCategory?' active':''}" onclick="filterServicesByCategory('${c.name}',this)"><span class="cat-tile-icon">${c.icon}</span><span class="cat-tile-label">${c.name}</span></button>`).join('');
 }
 function filterServicesByCategory(name,btn){
   servicesCategory=name;
@@ -2467,6 +2703,7 @@ function filterServicesPage(){
   if(wrap && !wrap.children.length) buildServicesCategoryBtns();
   const kw=(document.getElementById('servicesSearch')?.value||'').toLowerCase();
   const plat=svcSelectedPlatform==='all' ? '' : svcSelectedPlatform;
+  const promoPlats=['Facebook','TikTok','Instagram','YouTube'];
   renderServicesTable(allServices.filter(s=>{
     const mk=!kw||s.service_name?.toLowerCase().includes(kw)||s.platform?.toLowerCase().includes(kw)||s.service_id?.toString().includes(kw);
     const mp=!plat||s.platform===plat;
@@ -2474,7 +2711,8 @@ function filterServicesPage(){
     const md=svcActiveDrop==='all'||detectDropType(s.service_name)===svcActiveDrop;
     const mr=svcActiveRefill==='all'||detectRefill(s)===svcActiveRefill;
     const mq=svcActiveQuality==='all'||detectQuality(s.service_name)===svcActiveQuality;
-    return mk&&mp&&mc&&md&&mr&&mq;
+    const mPromo = svcMainTab!=='promo' || (isPromoService(s.service_name) && promoPlats.includes(s.platform));
+    return mk&&mp&&mc&&md&&mr&&mq&&mPromo;
   }));
 }
 function renderServicesTable(svcs){
